@@ -85,8 +85,10 @@ const AdminOrders = () => {
                 <p><strong className="text-pink-700">🆔 ID:</strong> {order.id}</p>
                 <p><strong className="text-pink-700">👤 Klient:</strong> {order.name} ({order.email})</p>
                 <p><strong className="text-pink-700">📞 Nr telefonu:</strong> {order.userPhone}</p>
-                <p><strong className="text-pink-700 max-w-3xl">📝 Uwagi:</strong> {order.notes}</p>
-
+                <p className="break-words max-h-24 overflow-y-auto pr-2">
+                  <strong className="text-pink-700">📝 Uwagi:</strong>{" "}
+                  {order.notes || "-"}
+                </p>
                 <button
                   onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
                   className="text-sm text-pink-700 hover:underline"
