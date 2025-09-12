@@ -1,4 +1,5 @@
 import Carrousel from '../components/Carrousel';
+import NewsSection from '../components/NewsSection';
 import { useEffect, useState } from 'react';
 import { client } from '../sanityClient';
 
@@ -28,9 +29,11 @@ export default function Home() {
         showButton={true}
         onDetailsClick={(product) => console.log(product)} 
       />      
-    </div>     
+    </div>  
 
-    <div className="bg-red-200 shadow-md p-6 text-center">
+    <NewsSection />   
+
+    {/* <div className="bg-red-200 shadow-md p-6 text-center">
       <h2 className="text-4xl font-bold text-green-800">Strona główna</h2>
       <p className="text-lg text-gray-600">Zapraszamy serdecznie na naszą stronę "LS Studio"!</p>
       <p className="text-gray-700">
@@ -54,7 +57,7 @@ export default function Home() {
       <p></p>
       
       <p></p>
-    </div>
+    </div> */}
   </>   
   )
 }

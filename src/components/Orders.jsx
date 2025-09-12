@@ -89,7 +89,9 @@ const Orders = () => {
                     </p>
                     <p><strong>Data:</strong> {new Date(order.createdAt?.seconds * 1000).toLocaleString("pl-PL")}</p>
                     <p><strong>Cena:</strong> {order.total} zł</p>
-                    <p><strong>Uwagi:</strong> {order.notes || "-"}</p>
+                    <p className="break-words max-h-24 overflow-y-auto pr-2">
+                      <strong>Uwagi:</strong> {order.notes || "-"}
+                    </p>
                   </div>
 
                   <div className="flex flex-col items-end justify-between">
