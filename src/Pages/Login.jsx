@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router-dom";
 
@@ -12,9 +10,28 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
 
+    try {
+      const res = await fetch("http://129.159.28.206:4000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Błąd logowania");
+      }
+
+      // 🔹 Зберігаємо токен у localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userEmail", data.user.email);
+
+      // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
       const lastProductId = localStorage.getItem("lastViewedProductId");
       if (lastProductId) {
         navigate(`/productsMain/${lastProductId}`);
