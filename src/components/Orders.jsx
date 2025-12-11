@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../components/Breadcrumbs";
 import {  Award, Clock, CheckCircle2, PackageCheck, XCircle, Truck } from "lucide-react";
@@ -31,25 +28,41 @@ const Orders = () => {
                       };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
         navigate("/login");
-      } else {
-        setUser(currentUser);
+        return;
       }
-    });
-    return () => unsubscribe();
+      try {
+        const res = await fetch("/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(res.data);
+      } catch (err) {
+        console.error("⚠️ Auth error:", err);
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   useEffect(() => {
     const fetchOrders = async () => {
       if (!user) return;
-      const ordersRef = collection(db, "users", user.uid, "userOrders", "");//, "", currentUser.uid
-      const snapshot = await getDocs(ordersRef);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setOrders(data);
-      setLoading(false);
-    }
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/orders", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setOrders(res.data || []);
+      } catch (err) {
+        console.error("❌ Błąd pobierania zamówień:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchOrders();
     }, [user]);
 

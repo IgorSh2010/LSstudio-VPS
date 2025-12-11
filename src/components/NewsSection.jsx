@@ -1,58 +1,100 @@
 import { useEffect, useState } from "react";
-import { db, auth } from "../firebase";
-import { collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { getUserRole } from "../Utils/roles";
+import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
+import { useAuth } from "../hooks/useAuth";
 
 const NewsSection = () => {
+  const { role } = useAuth();
   const [news, setNews] = useState([]);
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newImage, setNewImage] = useState("");
-  const [userRole, setUserRole] = useState("user");
+  //const [userRole, setUserRole] = useState("user");
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) return;
+
+  //   // 🔐 Отримуємо роль користувача з токена
+  //   try {
+  //     const payload = JSON.parse(atob(token.split(".")[1]));
+  //     setUserRole(payload.role || "user");
+  //   } catch {
+  //     console.warn("Nie można odczytać roli z tokena");
+  //   }
+  // }, []);
+
+  // 📥 Завантаження новин
+  const fetchNews = async () => {
+    try {
+      const res = await API.get("/api/news");
+      setNews(res.data);
+    } catch (err) {
+      console.error("❌ Błąd podczas pobierania newsów:", err);
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const role = await getUserRole(user.uid);
-        setUserRole(role);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "news"), (snapshot) => {
-      setNews(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-    return () => unsubscribe();
+    fetchNews();
   }, []);
 
   const addNews = async () => {
-    if (!newTitle || !newContent) return;
-    await addDoc(collection(db, "news"), {
-      title: newTitle,
-      content: newContent,
-      image: newImage || "",
-      createdAt: new Date(),
-    });
-    setNewTitle("");
-    setNewContent("");
-    setNewImage("");
+    if (!newTitle || !newContent) return alert("Wprowadź tytuł i treść");
+
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(
+        "/api/news",
+        { title: newTitle, content: newContent, image: newImage },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNewTitle("");
+      setNewContent("");
+      setNewImage("");
+      fetchNews();
+    } catch (err) {
+      console.error("❌ Nie udało się dodać newsu:", err);
+      if (err.response?.status === 401) navigate("/login");
+    }
   };
 
   const deleteNews = async (id) => {
-    await deleteDoc(doc(db, "news", id));
+    if (!window.confirm("Na pewno usunąć ten news?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`/api/news/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchNews();
+    } catch (err) {
+      console.error("❌ Błąd usuwania:", err);
+    }
   };
 
   const updateNews = async (id, updatedContent) => {
-    await updateDoc(doc(db, "news", id), updatedContent);
+    const newTitlePrompt = prompt("Nowy tytuł:");
+    const newContentPrompt = prompt("Nowa treść:");
+    if (!newTitlePrompt || !newContentPrompt) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(
+        `/api/news/${id}`,
+        { title: newTitlePrompt, content: newContentPrompt },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchNews();
+    } catch (err) {
+      console.error("❌ Błąd edycji newsu:", err);
+    }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h2 className="text-3xl font-extrabold mb-4 text-green-800">Aktualności</h2>
 
-      {userRole === "admin" && (
+      {role === "admin" && (
         <div className="bg-gray-100 p-4 rounded mb-6">
           <input
             type="text"
@@ -98,7 +140,7 @@ const NewsSection = () => {
             <h3 className="text-xl font-bold">{item.title}</h3>
             <p className="text-gray-700">{item.content}</p>
 
-            {userRole === "admin" && (
+            {role === "admin" && (
               <div className="mt-2 flex gap-2">
                 <button
                   onClick={() => deleteNews(item.id)}

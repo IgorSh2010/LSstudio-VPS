@@ -1,48 +1,62 @@
 import { useEffect, useState, useRef } from "react";
-import { auth, db } from "../firebase";
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-} from "firebase/firestore";
+
 
 const ChatWindow = ({ orderId, isAdmin = false }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
-  const currentUser = auth.currentUser;
+  // 👉 Емуляція поточного користувача (до інтеграції з бекендом)
+  const currentUser = isAdmin ? "admin" : "user123";
+  //const currentUser = auth.currentUser;
 
   // Fetch messages in real-time
   useEffect(() => {
-    const q = query(
-      collection(db, "orders", orderId, "chat"),
-      orderBy("timestamp")
-    );
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/chat/${orderId}`);
+        if (!res.ok) throw new Error("Błąd pobierania wiadomości");
+        const data = await res.json();
+        setMessages(data);
+      } catch (err) {
+        console.error("❌ Chat fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setMessages(msgs);
-    });
+    fetchMessages();
 
-    return () => unsubscribe();
+    // 🔄 Автооновлення кожні 5 секунд
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
   }, [orderId]);
 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    await addDoc(collection(db, "orders", orderId, "chat"), {
+    const msg = {
       text: newMessage,
-      sender: isAdmin ? "admin" : currentUser?.uid || "guest",
-      timestamp: serverTimestamp(),
-      read: false,
-    });
+      sender: currentUser,
+      timestamp: new Date().toISOString(),
+    };
 
+    // миттєво показуємо в UI
+    setMessages((prev) => [...prev, msg]);
     setNewMessage("");
+
+    try {
+     await fetch(`/api/chat/${orderId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(msg),
+      });
+    } catch (err) {
+      console.error("❌ Chat send error:", err);
+    } 
   };
 
   useEffect(() => {
@@ -54,7 +68,8 @@ const ChatWindow = ({ orderId, isAdmin = false }) => {
       <div className="p-4 border-b bg-pink-100 font-bold text-pink-700">🗨️ Czat z klientem</div>
 
       <div className="p-4 h-72 overflow-y-auto space-y-2 bg-gray-50">
-        {messages.length === 0 && (
+        {loading && <p className="text-gray-500 text-sm">Ładowanie wiadomości...</p>}
+        {!loading &&messages.length === 0 && (
           <p className="text-gray-500 text-sm">Brak wiadomości</p>
         )}
         {messages.map((msg) => (

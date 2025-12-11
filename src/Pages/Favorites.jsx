@@ -1,35 +1,79 @@
-import { collection, getDocs } from "firebase/firestore"
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { auth, db } from '../firebase'
-import { onAuthStateChanged } from "firebase/auth";
+import { Link, useNavigate } from 'react-router-dom'
 import FavoriteButton from "../components/FavoriteButton";
 import Breadcrumbs from '../components/Breadcrumbs'
 import OrderButton from "../components/OrderButton";
 
+const API_URL = "http://129.159.28.206:4000/api";
+
+//Got favorites
 export default function Favorites() {
-    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
     const [hiddenCard, setHiddenCard] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-        });
-        return () => unsubscribe();
-        }, []);
+        const token = localStorage.getItem("token");
+        if (!token) {
+        navigate("/login");
+        return;
+        }
 
-    useEffect(() => {
-    const fetchFavorites = async () => {
-        if (!user) return;
-        const favsRef = collection(db, "users", user.uid, "favorites");
-        const snapshot = await getDocs(favsRef);
-        const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setFavorites(items);
-    };
+        const fetchFavorites = async () => {
+        try {
+            const res = await fetch(`${API_URL}/favorites`, {
+            headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.status === 401) {
+            localStorage.removeItem("token");
+            navigate("/login");
+            return;
+            }
+            const data = await res.json();
+            setFavorites(data);
+        } catch (err) {
+            console.error("Помилка завантаження улюблених:", err);
+        } finally {
+            setLoading(false);
+        }
+        };
 
     fetchFavorites();
-    }, [user]);
+    }, [navigate]);
+
+//Delete favorite
+const handleUnfavorite = async (productId) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_URL}/favorites/${productId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setHiddenCard(productId);
+        setTimeout(() => {
+          setFavorites((favs) => favs.filter((f) => f.id !== productId));
+          setHiddenCard(null);
+        }, 400);
+      }
+    } catch (err) {
+      console.error("Помилка видалення з улюблених:", err);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center mt-10">Ładowanie ulubionych...</div>;
+  }
+
+  if (favorites.length === 0) {   
+     return (
+        <div className="text-center mt-10 text-gray-700">
+        <Breadcrumbs />
+        <p className="text-lg">Brak ulubionych produktów</p>
+        </div>
+        );
+    }    
 
     return (
     <>

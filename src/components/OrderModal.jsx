@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { createOrder } from "../Servises/orderService";
 import Modal from "./Modal";
-import { getDoc, doc } from "firebase/firestore";
-import { auth, db } from "../firebase";
 //import { sendMail } from "../Servises/SendMail"; // Assuming you have a sendMail function
 
 const OrderModal = ({ products, onClose, onSuccess }) => {
@@ -13,30 +11,40 @@ const OrderModal = ({ products, onClose, onSuccess }) => {
     notes: "",
   });
 
-  const [modalMessage, setmodalMessage] = useState(false);
+  const [modalMessage, setmodalMessage] = useState("");
+
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const user = auth.currentUser;
-      if (user?.uid) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch("/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.data) {
+          const { name, email } = res.data;
           setFormData((prev) => ({
             ...prev,
-            name: data.fullName || "",
-            email: data.email || "",
+            name: name || "",
+            email: email || "",
           }));
         }
+      } catch (error) {
+        console.warn("⚠️ Не вдалося отримати дані користувача:", error.message);
       }
     };
+
     fetchUserData();
   }, []);
 
   const handleSubmit = async (e) => {
+     e.preventDefault();
         
     try {
       await createOrder(formData, products);

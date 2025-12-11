@@ -1,24 +1,35 @@
-import { auth } from "../firebase";
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserRole } from "../Utils/roles";
+//import { getUserRole } from "../Utils/roles";
 
 const AdminProtectedRoute = ({ children }) => {
   const [authorized, setAuthorized] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (!currentUser) {
+    const verifyAdmin = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
         setAuthorized(false);
         return;
       }
-      const role = await getUserRole(currentUser.uid);
-      setAuthorized(role === "admin");
-    });
-    return () => unsubscribe();
+
+      try {
+        const res = await fetch("/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setAuthorized(res.data.role === "admin");
+      } catch (err) {
+        console.error("❌ Auth error:", err);
+        setAuthorized(false);
+      }
+    };
+
+    verifyAdmin();
   }, []);
 
-  if (authorized === null) return <div>Loading...</div>;
+  if (authorized === null) return <div>Sprawdzanie uprawnień...</div>;
 
   if (!authorized) return <Navigate to="/" />;
 

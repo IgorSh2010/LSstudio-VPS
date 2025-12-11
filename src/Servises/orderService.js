@@ -1,60 +1,33 @@
-import { collection, addDoc, doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "../firebase";
 
+/**
+ * Створює нове замовлення через бекенд.
+ * @param {Object} orderData — дані з форми (name, email, notes тощо)
+ * @param {Array} products — товари з кошика
+ */
 export const createOrder = async (orderData, products = []) => {
- try {
-  const user = auth.currentUser;
-  let userPhone = "";
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Brak tokena autoryzacji — użytkownik niezalogowany.");
 
-  if (user?.uid) {
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists()) {
-      userPhone = userDoc.data().phone || "";
-    }
-  }
-  
-  // const fullOrder = {
-  //   userId: user.uid,
-  //   userPhone: userPhone,
-  //   imageUrl: product?.imageUrl || null,
-  //   productId: product?._id || null,
-  //   productName: product?.title || "Nieokreślony",
-  //   price: product?.price || 0,
-  //   ...orderData, 
-  //   status: "Nowe",
-  //   createdAt: serverTimestamp()
-  // };
-
-  const fullOrder = {
-      userId: user.uid,
-      userPhone: userPhone,
+    const payload = {
+      ...orderData,
       products: products.map((item) => ({
-        imageUrl: item?.imageUrl || null, // Use imageUrl or image if available
-        productId: item?.id || null,
-        productName: item?.title || null,
+        productId: item.id,
+        productName: item.title,
+        imageUrl: item.imageUrl || item.image || null,
         price: item.price,
         quantity: item.quantity,
       })),
-      total: products.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
-      ...orderData,
-      status: "Nowe",
-      createdAt: serverTimestamp(),
+      total: products.reduce((sum, item) => sum + item.price * item.quantity, 0),
     };
 
-  const orderRefGl = await addDoc(collection(db, "orders"), fullOrder);
-  //console.log("Order added with ID:", orderRefGl.id);
+    const response = await fetch("/api/orders", payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  //if (user?.uid) {
-   const orderRefUser = await setDoc(doc(db, "users", user.uid, "userOrders", orderRefGl.id), fullOrder);
-  //   console.log("Order also written to user collection");
-  //}
-
-  return orderRefUser;
+    return response.data;
   } catch (error) {
-      console.error("❌ Failed to create order:", error);
+    console.error("❌ Nie udało się utworzyć zamówienia:", error.response?.data || error.message);
     throw error;
   }
 };

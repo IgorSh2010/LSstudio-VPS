@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Header from './components/HeaderNew'
-import Home from './Pages/Home'
+/* import Home from './Pages/Home'
 import Products from './Pages/ProductsMain'
 import AboutUs from './Pages/About'
-import ProductDetails from './Pages/ProductDetails'
+import ProductDetails from './Pages/ProductDetails'*/
 import Login from './Pages/Login'
 import Register from './Pages/Register'
 import Account from './Pages/Account'
@@ -17,7 +17,7 @@ import AdminOrders from './components/AdminOrders'
 import AdminProtectedRoute from './components/AdminProtectedRoute'
 import ConservationsDetails from './components/ConservationsDetails'
 import ProtectedChat from './components/ProtectedChat'
-import { CartProvider } from "./context/CartContext";
+import { CartProvider } from "./context/CartContext"; 
 
 const Layout = () => {
   
@@ -38,11 +38,12 @@ const Layout = () => {
       <main className="md:p-4 flex-1 bg-cover bg-center bg-no-repeat bg-fixed w-full" 
             style={{ backgroundImage: "url('/vyazanie-kryuchkom-8.jpg')" }}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          {/*<Route path="/" element={<Home />} />
           <Route path="/productsMain" element={<Products />} />
           <Route path="/productsMain/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/login" element={<Login />} />
+          
           <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Account />} />
           <Route path="/regulamin" element={<Regulamin />} />
@@ -52,8 +53,8 @@ const Layout = () => {
           <Route path="/conservations" element={<ConservationsMain />} />
           <Route path="/chat/:orderId" element={<ProtectedChat><ConservationsDetails /></ProtectedChat>} />
           
-          {/* Admin routes */}
-          <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
+          {/* Admin routes }
+          <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} /> */}
         </Routes>
       </main>
 
@@ -80,17 +81,42 @@ const Layout = () => {
 
 function App() {
   return (
-    <CartProvider>
+    // <CartProvider>
       <Router>
         <Layout />
-        <CookieConsent />
+        {/* <CookieConsent /> */}
 
         {/* FOOTER (опціонально) */}
-        <footer className="bg-white p-4 text-center text-sm text-gray-400 border-t">
-          &copy; {new Date().getFullYear()} LS STUDIO. Wszelkie prawa zastrzeżone.
+        <footer className="flex flex-col bg-fujiBase text-center text-sm text-gray-400">
+          <div className="flex gap-2 justify-center border-b border-border py-2">
+              <a
+              href="https://www.facebook.com/larysa.shepetko"
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+              <img src="/2023_Facebook_icon.svg.png" alt="Facebook" title="Polub nas na Facebook" className="w-7 h-7" />
+              </a>
+              <a
+              href="https://www.instagram.com/shepetko.larisa"
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+              <img src="/Instagram.png" alt="Instagram" title="Śledź nas na Instagram" className="w-7 h-7" />
+              </a>
+              <a
+              href="https://wa.me/48501577919"
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+              <img src="/whatsapp logo.png" alt="WhatsApp" title="Napisz na WhatsApp" className="w-7 h-7" />
+              </a>
+          </div>
+          <div className="justify-center py-2">
+            &copy; {new Date().getFullYear()} LS STUDIO. Wszelkie prawa zastrzeżone.
+          </div>
         </footer>
       </Router>
-    </CartProvider>
+    //</CartProvider>
   )
 }
 

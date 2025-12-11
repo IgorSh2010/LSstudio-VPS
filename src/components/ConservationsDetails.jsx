@@ -1,8 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { auth, db } from "../firebase";
-import { collection, addDoc, onSnapshot, serverTimestamp, doc, getDoc, updateDoc } from "firebase/firestore";
-import { getUserRole } from "../Utils/roles";
+//import { getUserRole } from "../Utils/roles";
 
 const ConversationsDetails = () => {
   const { orderId } = useParams();
@@ -10,51 +8,53 @@ const ConversationsDetails = () => {
   const [messageText, setMessageText] = useState("");
   const [role, setRole] = useState("user");
   const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
   const bottomRef = useRef(null);
-  const user = auth.currentUser;
+  
+  // 🧠 Емуляція користувача (тимчасово, поки не буде бекенд-автентифікації)
+  const mockUser = {
+    id: "user123",
+    role: "user",
+  };
 
   useEffect(() => {
-    if (!user) return;
+    //if (!user) return;
 
     const fetchOrderAndMessages = async () => {
-      const userRole = await getUserRole(user.uid);
-      setRole(userRole);
+      try {
+        setLoading(true);
 
-      const orderDoc = await getDoc(doc(db, "orders", orderId));
-      if (!orderDoc.exists()) return;
+        // 1️⃣ Завантажуємо замовлення
+        const orderRes = await fetch(`/api/orders/${orderId}`);
+        if (!orderRes.ok) throw new Error("Nie udało się pobrać zamówienia.");
+        const orderData = await orderRes.json();
+        setOrder(orderData);
 
-      const orderData = orderDoc.data();
-      if (userRole !== "admin" && orderData.userId !== user.uid) {
-        alert("Nie masz dostępu do tej rozmowy.");
-        return;
-      }
-      setOrder(orderData);
+        // 2️⃣ Визначаємо роль
+        const userRole = mockUser.role; // замінити на бекенд-запит
+        setRole(userRole);
 
-      const messagesRef = collection(db, "orders", orderId, "messages");
-      const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
-        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        msgs.sort((a, b) => a.createdAt?.seconds - b.createdAt?.seconds);
+        // 3️⃣ Завантажуємо повідомлення
+        const msgRes = await fetch(`/api/orders/${orderId}/messages`);
+        if (!msgRes.ok) throw new Error("Nie udało się pobrać wiadomości.");
+        const msgs = await msgRes.json();
+        msgs.sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
         setMessages(msgs);
-        
-        // Oznaczenie jako przeczytane
-        snapshot.docs.forEach(async (docSnap) => {
-        const data = docSnap.data();
-        const msgRef = doc(db, "orders", orderId, "messages", docSnap.id);
-
-        if (role === "admin" && !data.readByAdmin && data.sender === "user") {
-            await updateDoc(msgRef, { readByAdmin: true });
-        }
-        if (role === "user" && !data.readByUser && data.sender === "admin") {
-            await updateDoc(msgRef, { readByUser: true });
-        }
-        });
-      });
-
-      return () => unsubscribe();
+      } catch (err) {
+        console.error("❌ Chat fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchOrderAndMessages();
-  }, [user, orderId, role]);
+
+    // 🔄 Автооновлення чату кожні 5 секунд
+    const interval = setInterval(fetchOrderAndMessages, 5000);
+    return () => clearInterval(interval);
+  }, [orderId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,33 +63,54 @@ const ConversationsDetails = () => {
   const sendMessage = async () => {
     if (!messageText.trim()) return;
 
-    await addDoc(collection(db, "orders", orderId, "messages"), {
+    const newMsg = {
       text: messageText.trim(),
       sender: role,
-      createdAt: serverTimestamp(),
+      createdAt: new Date().toISOString(),
       readByUser: role === "user",
       readByAdmin: role === "admin",
-    });
+    };
 
+    // миттєво показуємо на екрані
+    setMessages((prev) => [...prev, newMsg]);
     setMessageText("");
+
+    try {
+      await fetch(`/api/orders/${orderId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMsg),
+      });
+    } catch (err) {
+      console.error("❌ Send message error:", err);
+    }
   };
 
-  if (!user || !order) return <p className="p-6 text-center">Ładowanie...</p>;
+  if (loading) return <p className="p-6 text-center">Ładowanie...</p>;
+  if (!order) return <p className="p-6 text-center">Brak danych zamówienia.</p>;
 
   return (
     <div className="max-w-3xl mx-auto mt-20 p-4 bg-white/50 backdrop-blur-lg rounded shadow flex flex-col h-[70vh]">
       <h1 className="text-xl font-bold text-pink-700 mb-2">Rozmowa o zamówieniu: {order.productName}</h1>
 
       <div className="flex-1 overflow-y-auto space-y-2 p-2 bg-white rounded shadow-inner">
-        {messages.map(msg => (
+        {messages.length === 0 && (
+          <p className="text-sm text-gray-500 text-center mt-2">
+            Brak wiadomości.
+          </p>
+        )}
+        
+        {messages.map((msg, idx) => (
           <div
-            key={msg.id}
+            key={idx}
             className={`max-w-xs p-2 rounded ${
               msg.sender === role ? "bg-pink-200 self-end" : "bg-gray-200 self-start"
             }`}
           >
             <p className="text-sm">{msg.text}</p>
-            <p className="text-[10px] text-right text-gray-500">{new Date(msg.createdAt?.seconds * 1000).toLocaleString()}</p>
+            <p className="text-[10px] text-right text-gray-500">
+              {new Date(msg.createdAt).toLocaleString("pl-PL")}
+            </p>
           </div>
         ))}
         <div ref={bottomRef}></div>

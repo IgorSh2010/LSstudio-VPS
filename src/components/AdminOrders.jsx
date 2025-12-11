@@ -1,9 +1,9 @@
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../firebase";
 import { ArrowDownUp, Pencil } from "lucide-react";
 import Breadcrumbs from "./Breadcrumbs";
+
+const API_URL = "https://your-backend-domain.com/api";
 
 const statusColors = {
   "Nowe": "bg-yellow-100 border-yellow-400",
@@ -17,34 +17,63 @@ const statusColors = {
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [sortDesc, setSortDesc] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const [expandedId, setExpandedId] = useState(null);
+  const token = localStorage.getItem("token");
 
   const fetchOrders = async () => {
-    const snapshot = await getDocs(collection(db, "orders"));
-    const allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setOrders(allOrders);
+    try {
+      const res = await fetch(`${API_URL}/admin/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Помилка завантаження замовлень");
+      const data = await res.json();
+      setOrders(data.orders || []);
+    } catch (err) {
+      console.error("Помилка завантаження:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  const handleStatusChange = async (id, userId, newStatus) => {
-    const orderRef = doc(db, "orders", id);
-    const orderUserRef = doc(db, "users", userId, "userOrders", id);
-    await updateDoc(orderRef, { status: newStatus });
-    await updateDoc(orderUserRef, { status: newStatus });
-    fetchOrders();
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setOrders((prev) =>
+          prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
+        );
+      }
+    } catch (err) {
+      console.error("Помилка оновлення статусу:", err);
+    }
   };
 
-  const sortedOrders = [...orders].sort((a, b) => {
-    if (!a.createdAt || !b.createdAt) return 0;
-    return sortDesc
-      ? b.createdAt.seconds - a.createdAt.seconds
-      : a.createdAt.seconds - b.createdAt.seconds;
-  });
+  const sortedOrders = [...orders].sort((a, b) =>
+    sortDesc
+      ? new Date(b.created_at) - new Date(a.created_at)
+      : new Date(a.created_at) - new Date(b.created_at)
+  );
+
+  if (loading)
+    return (
+      <div className="text-center text-gray-600 py-20">
+        Завантаження замовлень...
+      </div>
+    );
 
   return (
     <>
@@ -134,7 +163,7 @@ const AdminOrders = () => {
                   onClick={() => navigate(`/chat/${order.id}`)}
                   className="bg-pink-600 text-white text-sm px-3 py-2 rounded hover:bg-pink-500 transition w-full"
                 >
-                  Rozpocznij rozmowę
+                  Розпочати чат з клієнтом
                 </button>
               </div>
             </div>

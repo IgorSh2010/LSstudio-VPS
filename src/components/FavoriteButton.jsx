@@ -1,64 +1,82 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
-import { doc, setDoc, deleteDoc, getDoc, } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 
+const API_URL = "http://129.159.28.206:4000/api";
+
 const FavoriteButton = ({ productId, product, onUnliked }) => {
   const [liked, setLiked] = useState(false);
-  const [user, setUser] = useState(null);
   const [animate, setAnimate] = useState(false);
   const navigate = useNavigate();
   const [modalMessage, setModalMessage] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   
-  const favRef = user && doc(db, "users", user.uid, "favorites", productId);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser);
-    });
-    return () => unsubscribe();
-    }, []);
-
-  useEffect(() => {
-    const checkFavorite = async () => {
-      if (!user || !favRef) return;
-      const docSnap = await getDoc(favRef);
-      setLiked(docSnap.exists());
+  const checkFavorite = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_URL}/favorites/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setLiked(data.isFavorite);
+        }
+      } catch (err) {
+        console.error("Помилка перевірки улюбленого:", err);
+      }
     };
     checkFavorite();
-  }, [user, favRef]);
+  }, [productId, token]);
 
   const handleLike = async () => {
-    if (!user) {
+    if (!token) {
       setModalMessage("Najperw musisz się zalogować!");
       return;
     }
 
+  try {
     if (liked) {
       setConfirmDelete(true);
     } else {
-      await setDoc(favRef, {
-        title: product.title,
-        imageUrl: product.imageUrl,
-        price: product.price,
-      })
-      setLiked(true); 
+      const res = await fetch(`${API_URL}/favorites`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ productId: product.id || productId }),
+        });
+        if (res.ok) {
+          setLiked(true);
+          setAnimate(true);
+          setTimeout(() => setAnimate(false), 300);
+        }
     }
-    
-    setLiked((prev) => !prev);
-    setAnimate(true);
-    setTimeout(() => setAnimate(false), 300);
+  } catch (err) {
+    console.error("Помилка оновлення улюбленого:", err);
+    setModalMessage("Błąd: " + err.message);
+  }
   };
 
   const handleDeleteConfirmed = async () => {
-  await deleteDoc(favRef);
-  setLiked(false);
-  setConfirmDelete(false);
-  setModalMessage("Produkt usunięty z ulubionych");
-  if (onUnliked) onUnliked();
+  try {
+      const res = await fetch(`${API_URL}/favorites/${product.id || productId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setLiked(false);
+        setConfirmDelete(false);
+        setModalMessage("Produkt usunięty z ulubionych");
+        if (onUnliked) onUnliked();
+      }
+    } catch (err) {
+      console.error("Помилка видалення з улюблених:", err);
+      setModalMessage("Błąd: " + err.message);
+    }
 };
 
   const ttl = liked ? "Usuń z ulubionych" : "Dodaj do ulubionych";

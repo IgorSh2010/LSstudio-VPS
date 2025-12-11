@@ -1,56 +1,77 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-import classNames from "classnames";
-import { auth, db } from "../firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, onSnapshot, getDocs } from "firebase/firestore";
-import OrderModal from "./OrderModal";
 import CartPreview from "./CartPreview";
-import { getUserRole } from "../Utils/roles";
 import { Speech, UserRound, Heart, LogOut, NotebookTabs, MessageCircle } from "lucide-react";
 
 const Header = () => {
-  const location = useLocation();
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const isHome = location.pathname === "/";
-  const logo = "/LogoLS1.png";
-  const [user, setUser] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  //const location = useLocation();
   const navigate = useNavigate();
-  const dropdownRef = useRef(null);
-  const mobileMenuRef = useRef(null);
-  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);  
+  const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState("user");
   const [unreadCount, setUnreadCount] = useState(0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);  
+  const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);  
+  //const isHome = location.pathname === "/";
+  const logo = "/LogoLS.png";
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-          const fetchedRole = await getUserRole(currentUser.uid);
-          setUser(currentUser);
-          setUserRole(fetchedRole);
-        } else {
-          setUser(null);
-          setUserRole("user");
-        }
-    });
-    return () => unsubscribe();
-  }, []);
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setUser(null);
+        return;
+      }
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    setDropdownOpen(false);
+      try {
+        const res = await fetch("/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Unauthorized");
+        const data = await res.json();
+        setUser(data.user);
+        setUserRole(data.user.role || "user");
+      } catch (err) {
+        console.warn("❌ Не вдалося отримати користувача:", err);
+        setUser(null);
+        localStorage.removeItem("token");
+      }
+    };
+
+    fetchUser();
+  }, []);
+  
+  // 📬 Отримуємо кількість непрочитаних повідомлень
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUnread = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/messages/unread-count", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadCount(data.unreadCount || 0);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching unread count:", err);
+      }
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // 🚪 Вихід із системи
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
     navigate("/");
   };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -79,57 +100,20 @@ const Header = () => {
   return () => document.removeEventListener("mousedown", handleOutsideClick);
 }, [menuOpen]);
 
-  const headerClass = classNames(
-    "shadow-md transition-all duration-800 ease-in-out z-50",
-    {
-      "px-6 py-4 bg-cover bg-center w-full":
-        isHome && !scrolled,
-      "fixed top-0 pb-3 w-full bg-gray-900 text-white": scrolled || !isHome,
-    }
-  );
-
-  useEffect(() => {
-    if (!user) {
-      setUnreadCount(0);
-    return;
-   }
-
-    const q = collection(db, "orders");
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
-      const unreadCounts = await Promise.all(
-        snapshot.docs.map(async (docSnap) => {
-          const messagesSnap = await getDocs(collection(db, "orders", docSnap.id, "messages"));
-          return messagesSnap.docs.reduce((count, msg) => {
-            const data = msg.data();
-            return count + (!data.readByUser || !data.readByAdmin ? 1 : 0);
-          }, 0);
-        })
-      );
-      setUnreadCount(unreadCounts.reduce((a, b) => a + b, 0));
-    });
-
-  return () => unsubscribe();
-  }, [user]);
-
   return (
     <header
-      className={headerClass}
-      style={
-        isHome && !scrolled
-          ? { backgroundImage: "url('/head-vyazanie-kryuchkom-22.jpg')" }
-          : { backgroundColor: "#1f2937" }
-      }
+      className="shadow-md fixed top-0 pb-3 w-full bg-gradient-to-b from-fujiLight to-fujiBase text-textPrimary"
     >
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
         {/* Лого та назва */}
         <Link to={`/`}>
         <div className="flex space-x-4 sm:flex-row items-center sm:space-x-4 text-center sm:text-left">
-          <img src={logo} alt="logo" className="w-20 h-20 rounded-full bg-white p-1"/>
+          <img src={logo} alt="logo" className="w-12 h-12 rounded-sm"/>
           <div>
-            <h1 className="text-4xl text-pink-700 font-bold font-dancing tracking-wide">
+            <h1 className="text-4xl text-textPrimary font-bold font-dancing tracking-wide">
               LS STUDIO
             </h1>
-            <p className="text-pink-700 font-bold font-dancing text-sm">
+            <p className="text-textPrimary font-dancing text-sm">
               Love in little things
             </p>
           </div>
@@ -137,60 +121,35 @@ const Header = () => {
         </Link>
 
         {/* Навігація (desktop) */}
-        <nav className="hidden md:flex space-x-6 text-xl font-semibold uppercase">
-          <a href="/" className="hover:underline">
+        <nav className="flex md:gap-4 text-sm md:text-xl font-semibold uppercase">
+          <a href="/" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
             Glówna
           </a>
-          <a href="/productsMain" className="hover:underline">
+          <a href="/productsMain" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
             Katalog wyrobów
           </a>
           {user ? (
-            <a href="/account" className="hover:underline">
+            <a href="/account" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
               Konto
             </a>
           ) : ("")
           }  
-          <a href="/about" className="hover:underline">
+          <a href="/about" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
             O nas
           </a>
+
+          {/* Кнопка мобільного меню */}
+            <button
+              className="md:hidden text-xl focus:outline-none ml-4"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              ☰
+            </button> 
         </nav>
 
-        {/* Контакти */}
+        {/* Навігація (mobile) */}
         <div className="text-center md:text-right">
-          <div className="flex md:mb-auto space-x-4 gap-2 md:items-end md:text-right">            
-            <div className="flex flex-row flex-wrap md:flex-row gap-2 items-end md:justify-end">
-                <a
-                href="https://www.facebook.com/larysa.shepetko"
-                target="_blank"
-                rel="noopener noreferrer"
-                >
-                <img src="/2023_Facebook_icon.svg.png" alt="Facebook" title="Polub nas na Facebook" className="w-7 h-7" />
-                </a>
-                <a
-                href="https://www.instagram.com/shepetko.larisa"
-                target="_blank"
-                rel="noopener noreferrer"
-                >
-                <img src="/Instagram.png" alt="Instagram" title="Śledź nas na Instagram" className="w-7 h-7" />
-                </a>
-                <a
-                href="https://wa.me/48501577919"
-                target="_blank"
-                rel="noopener noreferrer"
-                >
-                <img src="/whatsapp logo.png" alt="WhatsApp" title="Napisz na WhatsApp" className="w-7 h-7" />
-                </a>
-                <a
-                href="/#"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => { e.preventDefault();
-                                  setOrderModalOpen(true); }}
-                >
-                <img src="/email-icon.svg" alt="Email" title="Napisz na e-mail" className="w-7 h-7" />
-                </a>
-            </div>
-
+          <div className="flex md:mb-auto space-x-4 gap-2 md:items-end md:text-right">       
             {userRole === "admin" && (
             <a href="/admin/orders" className=" bg-gray-700  hover:bg-gray-400 px-3 py-1 rounded text-white hover:text-pink-700 font-bold">⚙ Admin Panel</a>
             )}
@@ -202,13 +161,7 @@ const Header = () => {
               </div>
             ) : ("")} 
 
-            {/* Кнопка мобільного меню */}
-            <button
-              className="md:hidden text-3xl focus:outline-none md:mr-0"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              ☰
-            </button>            
+                       
           </div>
         </div>
 
@@ -270,38 +223,20 @@ const Header = () => {
           </div>
         ) : (
           <div className="hidden md:flex items-center space-x-4">
-            <a href="/login" className="font-semibold">
+            <a href="/login" className="font-semibold border border-transparent hover:border-border px-2 py-1 rounded-lg">
               Zaloguj
             </a>
             <span>|</span>
-            <a href="/Register" className="font-semibold">
+            <a href="/Register" className="font-semibold border border-transparent hover:border-border px-2 py-1 rounded-lg">
               Zarejestruj
             </a>
           </div>
         )}
-
-        {orderModalOpen && (
-        <OrderModal
-          product = { null } 
-          onClose={() => setOrderModalOpen(false)}
-        />
-          )}
       </div>
 
       {/* Мобільне меню */}
       {menuOpen && (
         <div ref={mobileMenuRef} className="md:hidden px-4 pb-4 bg-gray-800 text-white text-center mt-2 rounded-md">
-          <div className="flex pt-2 justify-center gap-7 w-full items-center">
-            <a href="/" className="hover:underline">
-              Glówna
-            </a>
-            <a href="/productsMain" className="hover:underline">
-              Katalog
-            </a>
-            <a href="/about" className="hover:underline">
-              O nas
-            </a>
-          </div>
           <hr className="my-2 border-gray-600" />
           {user ? (
             <div className="text-white space-y-2">

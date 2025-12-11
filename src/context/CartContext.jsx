@@ -1,7 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { db, auth } from "../firebase";
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 
 export const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
@@ -9,45 +6,64 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Підписка на auth
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsub();
-  }, []);
-
-  // Слухач Firestore --> Підписка на carts/{uid}
-  useEffect(() => {
-    if (!user) {
-      setCartItems([]);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setUser(null);
+      setLoading(false);
       return;
     }
 
-    const cartRef = doc(db, "carts", user.uid);
-    const unsubscribe = onSnapshot(cartRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (Array.isArray(data.items)) {
-          setCartItems(data.items);
-        } else {
-          setCartItems([]);
-        }
-      } else {
-        setCartItems([]);
-      }
-    });
+    fetch("/api/users/me", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-    return () => unsubscribe();
+  // 🛒 Завантажуємо кошик (з localStorage або бекенду)
+  useEffect(() => {
+    if (user) {
+      const token = localStorage.getItem("token");
+      fetch("/api/cart", { headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => setCartItems(res.data.items || []))
+        .catch((err) => {
+          console.error("❌ Error loading cart:", err);
+          setCartItems([]);
+        });
+    } else {
+      // гостьовий режим — беремо з localStorage
+      const stored = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(stored);
+    }
   }, [user]);
 
+  // 🧾 Зберігаємо кошик
   const saveCart = async (newItems) => {
-    if (!user) return;
-    await setDoc(doc(db, "carts", user.uid), {
-      items: newItems,
-      updatedAt: new Date(),
-    });
+    setCartItems(newItems);
+
+    if (user) {
+      const token = localStorage.getItem("token");
+      try {
+        await fetch(
+          "/api/cart",
+          { items: newItems },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (err) {
+        console.error("❌ Error saving cart:", err);
+      }
+    } else {
+      // локальне збереження для неавторизованого
+      localStorage.setItem("cart", JSON.stringify(newItems));
+    }
   };
 
   const addToCart = (product) => {
@@ -71,18 +87,18 @@ export const CartProvider = ({ children }) => {
         },
       ];
     }
-    setCartItems(updated);
+    //setCartItems(updated);
     saveCart(updated);
   };
 
   const removeFromCart = (productId) => {
     const updated = cartItems.filter((item) => item.id !== productId);
-    setCartItems(updated);
+    //setCartItems(updated);
     saveCart(updated);
   };
 
   const clearCart = () => {
-    setCartItems([]);
+    //setCartItems([]);
     saveCart([]);
   };
 
@@ -91,6 +107,8 @@ export const CartProvider = ({ children }) => {
     0
   );
 
+  if (loading) return null;
+  
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, total }}>
       {children}

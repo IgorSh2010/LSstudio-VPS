@@ -1,5 +1,3 @@
-import React from 'react';
-
 const CategoryFilter = ({ categories, selectedCategory, onSelect, products }) => {
   // Підрахунок товарів у кожній категорії
   const getCount = (category) => {

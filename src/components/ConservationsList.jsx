@@ -1,71 +1,76 @@
 import { useEffect, useState, useRef } from "react";
-import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
-import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { getUserRole } from "../Utils/roles";
-import { onAuthStateChanged } from "firebase/auth";
+//import { getUserRole } from "../Utils/roles";
 
 const ConversationsList = () => {
   const [conversations, setConversations] = useState([]);
   const [unreadPerOrder, setUnreadPerOrder] = useState({});
-  const [role, setRole] = useState("user");
-  const [user, setUser] = useState(null);
+  //const [role, setRole] = useState("user");
+  //const [user, setUser] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-          const userRole = await getUserRole(currentUser.uid);
-          setUser(currentUser);
-          setRole(userRole);
-        } else {
-          setUser(null);
-          setRole("user");
-        }
-    });
-    return () => unsubscribe();
-  }, []);
+  // 🧠 Тимчасова емул. користувача (заміниться JWT після підключення бекенду)
+  const mockUser = {
+    id: "user123",
+    role: "user", // або "admin"
+  };
 
   useEffect(() => {
-    if (!user) return;
+    const fetchConversations = async () => {
+      try {
+        setLoading(true);
 
-    let q;
-    if (role === "admin") {
-      q = collection(db, "orders");
-    } else {
-      q = query(collection(db, "orders"), where("userId", "==", user.uid));
-    }
+        // 1️⃣ Отримуємо всі замовлення
+        const url =
+          mockUser.role === "admin"
+            ? "/api/orders"
+            : `/api/orders?userId=${mockUser.id}`;
 
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
-      const items = [];
-      const unreadCountsObj = {};
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Błąd pobierania zamówień");
+        const orders = await res.json();
 
-      for (const docSnap of snapshot.docs) {
-        const order = { id: docSnap.id, ...docSnap.data() };
+        // 2️⃣ Для кожного замовлення отримуємо кількість непрочитаних повідомлень
+        const unreadCounts = {};
+        await Promise.all(
+          orders.map(async (order) => {
+            const msgRes = await fetch(`/api/orders/${order.id}/messages`);
+            if (!msgRes.ok) return;
+            const msgs = await msgRes.json();
 
-        const messagesSnap = await getDocs(collection(db, "orders", order.id, "messages"));
-        const unreadCount = messagesSnap.docs.reduce((count, msg) => {
-          const data = msg.data();
-          const isUnread = role === "admin"
-            ? !data.readByAdmin && data.sender === "user"
-            : !data.readByUser && data.sender === "admin";
-          return count + (isUnread ? 1 : 0);
-        }, 0);
+            const unread = msgs.filter((m) =>
+              mockUser.role === "admin"
+                ? !m.readByAdmin && m.sender === "user"
+                : !m.readByUser && m.sender === "admin"
+            ).length;
 
-        unreadCountsObj[order.id] = unreadCount;
-        items.push(order);
+            unreadCounts[order.id] = unread;
+          })
+        );
+
+        // 3️⃣ Сортуємо — зверху ті, де є нові повідомлення
+        const sorted = [...orders].sort((a, b) => {
+          const unreadA = unreadCounts[a.id] || 0;
+          const unreadB = unreadCounts[b.id] || 0;
+          return unreadB - unreadA;
+        });
+
+        setConversations(sorted);
+        setUnreadPerOrder(unreadCounts);
+      } catch (err) {
+        console.error("❌ Error fetching conversations:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      items.sort((a, b) => (unreadCountsObj[b.id] ? 1 : 0) - (unreadCountsObj[a.id] ? 1 : 0));
-
-      setConversations(items);
-      setUnreadPerOrder(unreadCountsObj);
-    });
-
-    return () => unsubscribe();
-  }, [user, role]);  
+    fetchConversations();
+    const interval = setInterval(fetchConversations, 5000); // автооновлення раз на 5с
+    return () => clearInterval(interval);
+  }, []);  
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -77,7 +82,12 @@ const ConversationsList = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (user === null) return <p className="p-6 text-center">Musisz być zalogowany, aby zobaczyć rozmowy.</p>;
+  if (loading)
+    return (
+      <div className="text-center text-gray-600 py-20">
+        Ładowanie rozmów...
+      </div>
+    );
 
   return (
     <div ref={containerRef} className="max-w-5xl mx-auto mt-2 p-4 bg-white/50 backdrop-blur-lg rounded shadow">
@@ -85,7 +95,7 @@ const ConversationsList = () => {
         <p className="text-gray-600">Brak rozmów.</p>
       ) : (
         <ul className="space-y-3">
-          {conversations.map(conv => (
+          {conversations.map((conv) => (
             <li key={conv.id} className="relative">
               <div
                 className="flex items-center justify-between bg-pink-100 p-3 rounded shadow hover:shadow-md transition cursor-pointer"

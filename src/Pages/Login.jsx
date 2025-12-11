@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,24 +13,13 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://129.159.28.206:4000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
+      const res = await loginUser(email, password, "lsstudio");
+      //const data = await res.json();
 
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.message || "Błąd logowania");
       }
-
-      // 🔹 Зберігаємо токен у localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", data.user.email);
 
       // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
       const lastProductId = localStorage.getItem("lastViewedProductId");

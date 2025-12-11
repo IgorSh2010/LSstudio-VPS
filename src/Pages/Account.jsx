@@ -1,71 +1,84 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
-import { onAuthStateChanged, signOut, sendEmailVerification } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal"; 
-import { Edit, Save, X, LogOut, NotebookTabs, ClockAlert } from 'lucide-react';
+import { Edit, Save, X, LogOut, NotebookTabs } from 'lucide-react'; //, ClockAlert
+
+const API_URL = "http://129.159.28.206:4000/api";
 
 const Account = () => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState({ fullName: "", phone: "" , email: ""});
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [emailVerified, setEmailVerified] = useState(false);
+  //const [emailVerified, setEmailVerified] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        navigate("/login");
-      } else {
-        setUser(currentUser);
-        setEmailVerified(currentUser.emailVerified);
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfile(docSnap.data());
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+   
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(`${API_URL}/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+          return;
         }
+
+        const data = await res.json();
+        setUser(data);
+        setProfile({
+          email: data.email,
+          fullName: data.full_name || "",
+          phone: data.phone || "",
+        });
+      } catch (err) {
+        console.error("Błąd ładowania informacji:", err);
+      } finally {
         setLoading(false);
       }
-    });
-   
-    const interval = setInterval(async () => {
-      if (auth.currentUser) {
-        await auth.currentUser.reload();
-        setEmailVerified(auth.currentUser.emailVerified);
-        }
-      }, 1000);  // 1 секунда
+    };
 
-      return () => {
-        unsubscribe();
-        clearInterval(interval);
-      };
+    fetchProfile();
   }, [navigate]);
 
   const handleSave = async () => {
-    if (!user) return;
-    const docRef = doc(db, "users", user.uid);
-    await setDoc(docRef, { ...profile, email: user.email }, { merge: true });
-    setModalMessage("Profil został zapisany!");
-    setEditMode(false);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_URL}/users/me`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profile),
+      });
+
+      if (!res.ok) throw new Error("Informacja nie została zaktualizowana.");
+
+    const updated = await res.json();
+      setUser(updated);
+      setModalMessage("Profil został zapisany!");
+      setEditMode(false);
+    } catch (err) {
+      console.error(err);
+      setModalMessage("Informacja nie została zaktualizowana.");
+    }
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
+    localStorage.removeItem("token");
     navigate("/");
-  };
-
-  const handleResendVerification = async () => {
-    if (user) {
-      try {
-        await sendEmailVerification(user);
-        setModalMessage("📩 E-mail o potwierdzeniu adresu został ponownie wysłany.");
-      } catch (error) {
-        setModalMessage("❌ Błąd podczas wysyłania e-maila: " + error.message);
-      }
-    }
   };
  
   if (loading) {
@@ -150,27 +163,13 @@ const Account = () => {
           )}
         </div>
 
-        {user && !emailVerified && (
-            <div className="mb-4 p-4 bg-yellow-100 text-yellow-800 rounded">
-              <p>
-                <ClockAlert size={30} className="text-yellow-800 items-center justify-center"/> Twój adres e-mail nie został jeszcze potwierdzony. Sprawdź swoją skrzynkę e-mail.
-              </p>
-              <button
-                onClick={handleResendVerification}
-                className="mt-2 bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
-              >
-                Wyślij ponownie e-mail
-              </button>
-            </div>
-          )}
-
-          {modalMessage && (
-            <Modal
-              message={modalMessage}
-              onClose={() => setModalMessage("")}
-              onConfirm={() => setModalMessage("")}
-              confirmMode={false} />
-          )}
+        {modalMessage && (
+          <Modal
+            message={modalMessage}
+            onClose={() => setModalMessage("")}
+            onConfirm={() => setModalMessage("")}
+            confirmMode={false} />
+        )}
 
         <button
           onClick={() => navigate("/orders")}
