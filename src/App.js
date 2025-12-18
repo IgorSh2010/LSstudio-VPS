@@ -39,13 +39,14 @@ const Layout = () => {
             style={{ backgroundImage: "url('/vyazanie-kryuchkom-8.jpg')" }}>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/account" element={<Account />} />
           {/*<Route path="/" element={<Home />} />
           <Route path="/productsMain" element={<Products />} />
           <Route path="/productsMain/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutUs />} />
           
           <Route path="/register" element={<Register />} />
-          <Route path="/account" element={<Account />} />
+          
           <Route path="/regulamin" element={<Regulamin />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/orders" element={<Orders />} />
@@ -116,7 +117,7 @@ function App() {
           </div>
         </footer>
       </Router>
-    //</CartProvider>
+    //</CartProvider> 
   )
 }
 

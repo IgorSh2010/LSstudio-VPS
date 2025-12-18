@@ -1,21 +1,24 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-import CartPreview from "./CartPreview";
+//import CartPreview from "./CartPreview";
+import { getMe } from "../api/user";
 import { Speech, UserRound, Heart, LogOut, NotebookTabs, MessageCircle } from "lucide-react";
+
 
 const Header = () => {
   //const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);  
   const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState("user");
+  const [userRole, setUserRole] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);  
   const dropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);  
   //const isHome = location.pathname === "/";
-  const logo = "/LogoLS.png";
+  const logo = "/logoLS.png";
 
+  
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
@@ -25,13 +28,14 @@ const Header = () => {
       }
 
       try {
-        const res = await fetch("/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Unauthorized");
-        const data = await res.json();
-        setUser(data.user);
-        setUserRole(data.user.role || "user");
+        const res = await getMe();
+        if (res.status === 401) {
+          //localStorage.removeItem("token");
+          //navigate("/login");
+          //return;
+        }
+        setUser(res.user);
+        setUserRole(res.user.role || "user");
       } catch (err) {
         console.warn("❌ Не вдалося отримати користувача:", err);
         setUser(null);
@@ -41,7 +45,7 @@ const Header = () => {
 
     fetchUser();
   }, []);
-  
+   
   // 📬 Отримуємо кількість непрочитаних повідомлень
   useEffect(() => {
     if (!user) return;
@@ -157,7 +161,7 @@ const Header = () => {
             {/* Кнопка кошика */}
             {user ? (
               <div className="relative">
-                <CartPreview />
+                {/* <CartPreview /> */}
               </div>
             ) : ("")} 
 

@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginData, setLoginData] = useState({ email: "", password: "", tenant: "lsstudio"}) 
   const [modalMessage, setModalMessage] = useState(null);
   const navigate = useNavigate();
 
@@ -13,22 +12,30 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await loginUser(email, password, "lsstudio");
-      //const data = await res.json();
+      const res = await loginUser(loginData);
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Błąd logowania");
-      }
+      if (res.token) {
+        localStorage.setItem("token", res.token);
 
-      // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
-      const lastProductId = localStorage.getItem("lastViewedProductId");
-      if (lastProductId) {
-        navigate(`/productsMain/${lastProductId}`);
-        localStorage.removeItem("lastViewedProductId"); 
+        //window.location.href = "/admin/products";
+        
+        // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
+        const lastProductId = localStorage.getItem("lastViewedProductId");
+        if (lastProductId) {
+          navigate(`/productsMain/${lastProductId}`);
+          localStorage.removeItem("lastViewedProductId"); 
+        } else {
+          navigate("/account"); 
+        }
+        setModalMessage("✅ Zalogowano pomyślnie!");
+
+        //setToast({ show: true, message: "✅ Zalogowano pomyślnie!", type: "success" });
+        //setTimeout(() => setToast({ show: false, message: "" }), 4000);
       } else {
-        navigate("/account"); 
-      }
+        setModalMessage("❌ Błąd logowania. Sprawdź swoje dane.");
+      //setToast({ show: true, message: "❌ Błąd logowania. Sprawdź swoje dane.", type: "error" });
+      //setTimeout(() => setToast({ show: false, message: "" }), 4000);
+      }      
     } catch (error) {
       setModalMessage("Błąd: " + error.message);
     }
@@ -36,7 +43,7 @@ const Login = () => {
 
   return (
     <>
-    <div className="max-w-md mx-auto p-6 bg-white shadow rounded mt-16">
+    <div className="max-w-md mx-auto p-6 bg-white shadow rounded mt-36 md:mt-16">
       <h2 className="text-2xl text-center font-bold mb-2">Logowanie </h2>
       <h2 className="text-xl text-center font-bold mb-2">dla zarejestrowanych użytkowników</h2>
       <form onSubmit={handleLogin} className="space-y-4">
@@ -44,16 +51,16 @@ const Login = () => {
           type="email"
           placeholder="Twoj adres e-mail, podany pod czas rejestracji..."
           className="w-full border p-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={loginData.email}
+          onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
           required
         />
         <input
           type="password"
           placeholder="Wprowadź hasło..."
           className="w-full border p-2"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={loginData.password}
+          onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
           required
         />
         <button className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 w-full">
