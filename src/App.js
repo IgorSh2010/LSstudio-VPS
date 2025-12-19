@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Header from './components/HeaderNew'
-/* import Home from './Pages/Home'
+import Home from './Pages/Home'
 import Products from './Pages/ProductsMain'
 import AboutUs from './Pages/About'
-import ProductDetails from './Pages/ProductDetails'*/
+import ProductDetails from './Pages/ProductDetails'
 import Login from './Pages/Login'
 import Register from './Pages/Register'
 import Account from './Pages/Account'
@@ -40,8 +40,8 @@ const Layout = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<Account />} />
-          {/*<Route path="/" element={<Home />} />
-          <Route path="/productsMain" element={<Products />} />
+          <Route path="/" element={<Home />} />
+          {/*<Route path="/productsMain" element={<Products />} />
           <Route path="/productsMain/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutUs />} />
           

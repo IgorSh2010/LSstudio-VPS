@@ -1,17 +1,34 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api/axios";
-import { useAuth } from "../hooks/useAuth";
+import { getMe } from "../api/user";
+import { Button } from "./UI/Button";
 
 const NewsSection = () => {
-  const { role } = useAuth();
+  //const { role } = useAuth();
   const [news, setNews] = useState([]);
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newImage, setNewImage] = useState("");
-  //const [userRole, setUserRole] = useState("user");
+  const [role, setUserRole] = useState("user");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await getMe();        
+        setUserRole(res.user.role || "user");
+
+      } catch (err) {
+        console.warn("❌ Не вдалося отримати користувача:", err);
+        localStorage.removeItem("token");
+      }
+    }
+
+    fetchUser();
+  })
   // useEffect(() => {
   //   const token = localStorage.getItem("token");
   //   if (!token) return;
@@ -26,7 +43,7 @@ const NewsSection = () => {
   // }, []);
 
   // 📥 Завантаження новин
-  const fetchNews = async () => {
+  /* const fetchNews = async () => {
     try {
       const res = await API.get("/api/news");
       setNews(res.data);
@@ -37,7 +54,7 @@ const NewsSection = () => {
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, []); */
 
   const addNews = async () => {
     if (!newTitle || !newContent) return alert("Wprowadź tytuł i treść");
@@ -52,7 +69,7 @@ const NewsSection = () => {
       setNewTitle("");
       setNewContent("");
       setNewImage("");
-      fetchNews();
+      // fetchNews();
     } catch (err) {
       console.error("❌ Nie udało się dodać newsu:", err);
       if (err.response?.status === 401) navigate("/login");
@@ -66,7 +83,7 @@ const NewsSection = () => {
       await fetch(`/api/news/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchNews();
+      // fetchNews();
     } catch (err) {
       console.error("❌ Błąd usuwania:", err);
     }
@@ -84,7 +101,7 @@ const NewsSection = () => {
         { title: newTitlePrompt, content: newContentPrompt },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchNews();
+      // fetchNews();
     } catch (err) {
       console.error("❌ Błąd edycji newsu:", err);
     }
@@ -92,10 +109,10 @@ const NewsSection = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <h2 className="text-3xl font-extrabold mb-4 text-green-800">Aktualności</h2>
+      <h2 className="text-3xl font-extrabold mb-4 text-textPrimary">Aktualności</h2>
 
       {role === "admin" && (
-        <div className="bg-gray-100 p-4 rounded mb-6">
+        <div className="bg-bgSecondary p-4 rounded mb-6">
           <input
             type="text"
             placeholder="Tytuł"
@@ -116,12 +133,10 @@ const NewsSection = () => {
             value={newImage}
             onChange={(e) => setNewImage(e.target.value)}
           />
-          <button
-            onClick={addNews}
-            className="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700"
-          >
-            Dodaj aktualność
-          </button>
+          <Button variant="primary"
+            onClick={addNews}>
+            Dodaj nowość
+          </Button>
         </div>
       )}
 

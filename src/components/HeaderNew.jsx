@@ -1,6 +1,7 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 //import CartPreview from "./CartPreview";
+import { Button } from "./UI/Button";
 import { getMe } from "../api/user";
 import { Speech, UserRound, Heart, LogOut, NotebookTabs, MessageCircle } from "lucide-react";
 
@@ -106,7 +107,7 @@ const Header = () => {
 
   return (
     <header
-      className="shadow-md fixed top-0 pb-3 w-full bg-gradient-to-b from-fujiLight to-fujiBase text-textPrimary"
+      className="shadow-md  top-0 pb-3 w-full bg-gradient-to-b from-fujiLight to-fujiBase text-textPrimary"
     >
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
         {/* Лого та назва */}
@@ -155,7 +156,11 @@ const Header = () => {
         <div className="text-center md:text-right">
           <div className="flex md:mb-auto space-x-4 gap-2 md:items-end md:text-right">       
             {userRole === "admin" && (
-            <a href="/admin/orders" className=" bg-gray-700  hover:bg-gray-400 px-3 py-1 rounded text-white hover:text-pink-700 font-bold">⚙ Admin Panel</a>
+              <Button variant="secondary"
+                onClick={() => navigate("/admin/orders")}
+              >
+                <span>⚙ Admin Panel</span>
+              </Button>
             )}
 
             {/* Кнопка кошика */}
@@ -163,18 +168,15 @@ const Header = () => {
               <div className="relative">
                 {/* <CartPreview /> */}
               </div>
-            ) : ("")} 
-
-                       
+            ) : ("")}                        
           </div>
         </div>
 
         {/* Додаткові кнопки */}
         {user ? (
           <div ref={dropdownRef} className="relative hidden md:flex items-center space-x-4">
-            <button
+            <Button variant="secondary"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center space-x-2 bg-pink-500 px-3 py-1 rounded hover:bg-pink-700"
             >
               <span>{user.email.split("@")[0]}</span>
               <span>▼</span>
@@ -184,7 +186,7 @@ const Header = () => {
                   <span className="absolute -right-1 -top-1 w-3 h-3 bg-red-600 rounded-full"></span>
                 </div>
               }
-            </button>
+            </Button>
 
             {dropdownOpen && (
               <div className="absolute right-0 top-full mt-1 bg-white text-gray-700 shadow-lg rounded-md w-56 z-50 border border-pink-200">
@@ -226,14 +228,14 @@ const Header = () => {
             )}
           </div>
         ) : (
-          <div className="hidden md:flex items-center space-x-4">
-            <a href="/login" className="font-semibold border border-transparent hover:border-border px-2 py-1 rounded-lg">
-              Zaloguj
-            </a>
+          <div className="hidden md:flex items-center space-x-1">
+            <Button variant="ghost" onClick={() => navigate("/login")}>
+              <span>Zaloguj</span>
+            </Button>
             <span>|</span>
-            <a href="/Register" className="font-semibold border border-transparent hover:border-border px-2 py-1 rounded-lg">
-              Zarejestruj
-            </a>
+            <Button variant="ghost" onClick={() => navigate("/register")}>
+              <span>Zarejestruj</span>
+            </Button>
           </div>
         )}
       </div>

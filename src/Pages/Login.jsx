@@ -25,16 +25,11 @@ const Login = () => {
           navigate(`/productsMain/${lastProductId}`);
           localStorage.removeItem("lastViewedProductId"); 
         } else {
-          navigate("/account"); 
+          window.location.href = "/account"; 
         }
         setModalMessage("✅ Zalogowano pomyślnie!");
-
-        //setToast({ show: true, message: "✅ Zalogowano pomyślnie!", type: "success" });
-        //setTimeout(() => setToast({ show: false, message: "" }), 4000);
       } else {
         setModalMessage("❌ Błąd logowania. Sprawdź swoje dane.");
-      //setToast({ show: true, message: "❌ Błąd logowania. Sprawdź swoje dane.", type: "error" });
-      //setTimeout(() => setToast({ show: false, message: "" }), 4000);
       }      
     } catch (error) {
       setModalMessage("Błąd: " + error.message);
