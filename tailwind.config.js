@@ -1,5 +1,3 @@
-const { getByText } = require("@testing-library/dom");
-
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
@@ -38,6 +36,13 @@ module.exports = {
         //Дозволений теплий спектр (персик):
         peachSoft: "#F6C8A5", //Дуже м’який персик. Легкі декоративні вкраплення, тіні, тонкі градієнти. Не для кнопок.
         peachFaint: "#FBE9DD", //Ледь відчутний теплий фон для “сонячних” секцій, банерів, або тонкого емоційного підтексту.
+        
+        //Відтінки зеленого для підкреслення гамми сайту:
+        greenSoft: "#E6EFE6",      // фони
+        greenSoft2: "#72897D",
+        greenMuted: "#8FAF8A",
+        greenMuted2: "#9BB89A",    // hover / info
+        greenMoss: "#6B7F73",      // статуси        
       },
     },
   },

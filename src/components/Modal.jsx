@@ -1,25 +1,60 @@
 const Modal = ({ message, onClose, onConfirm, confirmMode = false }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-      <div className="bg-white rounded p-6 shadow-md max-w-sm text-center">
-        <p className="text-lg mb-4">{message}</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-lineStrong/40 backdrop-blur-sm">
+      <div
+        className="
+          max-w-sm w-full
+          rounded-2xl
+          bg-surface/90
+          p-6
+          text-center
+          shadow-[0_10px_30px_rgba(43,58,103,0.25)]
+        "
+      >
+        <p className="mb-5 text-base font-medium text-[#2B3A67]">
+          {message}
+        </p>
+
         {confirmMode ? (
           <div className="flex justify-center gap-4">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                onConfirm()}}
-              className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                onConfirm();
+              }}
+              className="
+                px-4 py-2
+                rounded-xl
+                text-sm font-semibold
+                text-white
+                bg-[#E89BC6]
+                hover:bg-[#D477AE]
+                active:scale-[0.98]
+                transition-all
+                shadow-[0_4px_10px_rgba(43,58,103,0.12)]
+              "
             >
               Tak
             </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                onClose()}}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                onClose();
+              }}
+              className="
+                px-4 py-2
+                rounded-xl
+                text-sm font-semibold
+                text-[#2B3A67]
+                bg-[#FBE9DD]
+                hover:bg-[#F6D3BE]
+                active:scale-[0.98]
+                transition-all
+                border border-[#F2BFA3]
+              "
             >
               Nie
             </button>
@@ -27,7 +62,18 @@ const Modal = ({ message, onClose, onConfirm, confirmMode = false }) => {
         ) : (
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+            className="
+              mx-auto
+              px-5 py-2
+              rounded-xl
+              text-sm font-semibold
+              text-white
+              bg-[#E89BC6]
+              hover:bg-[#D477AE]
+              active:scale-[0.98]
+              transition-all
+              shadow-[0_4px_10px_rgba(43,58,103,0.12)]
+            "
           >
             OK
           </button>

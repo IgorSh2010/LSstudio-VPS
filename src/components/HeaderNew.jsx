@@ -133,6 +133,9 @@ const Header = () => {
           <a href="/productsMain" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
             Katalog wyrobów
           </a>
+          <a href="/patterns" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
+            Wzory
+          </a>
           {user ? (
             <a href="/account" className="border border-transparent hover:border-border px-2 py-1 rounded-lg">
               Konto

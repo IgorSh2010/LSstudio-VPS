@@ -32,7 +32,7 @@ const Breadcrumbs = () => {
   }, [location.pathname]);
 
   return (
-    <nav className="text-sm text-gray-600 mt-36 md:mt-20 lg:mt-20 mb-1">
+    <nav className="text-sm text-gray-600 mt-1 mb-1">
       <ol className="list-reset flex">
         <li>
           <Link to="/" className="text-blue-600 hover:underline">

@@ -1,36 +1,40 @@
 const CategoryFilter = ({ categories, selectedCategory, onSelect, products }) => {
-  // Підрахунок товарів у кожній категорії
-  const getCount = (category) => {
-    return products.filter((p) => p.category === category).length;
-  };
+  const getCount = (category) =>
+    products.filter((p) => p.category === category).length;
+
+  const base =
+    "whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300";
+
+  const active =
+    "bg-accentPrimary text-textSecondary shadow-sm scale-[1.04]";
+
+  const inactive =
+    "bg-bgSecondary text-[#5A4A4F] border border-border hover:bg-accentPrimaryHover/50 hover:text-textSecondary";
 
   return (
-    <div className="mt-4 overflow-x-auto max-w-screen overflow-hidden">
-      <div className="flex gap-2 min-w-max w-full pb-2 transition-all hide-scrollbar">
-        {/* Кнопка "Wszystkie" */}
+    <div className="mt-4 overflow-x-auto max-w-screen hide-scrollbar">
+      <div className="flex gap-2 min-w-max pb-2">
+        {/* Wszystkie */}
         <button
           onClick={() => onSelect(null)}
-          className={`whitespace-nowrap px-3 py-1 rounded transition-all duration-300 transform ${
-            !selectedCategory
-              ? 'bg-pink-500 text-white scale-105 shadow-md'
-              : 'bg-pink-200 text-gray-700 hover:bg-pink-300'
+          className={`${base} ${
+            !selectedCategory ? active : inactive
           }`}
         >
-          Wszystkie ({products.length})
+          Wszystkie <span className="opacity-70">({products.length})</span>
         </button>
 
-        {/* Кнопки категорій */}
+        {/* Kategorie */}
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => onSelect(cat)}
-            className={`whitespace-nowrap px-3 py-1 rounded transition-all duration-300 transform ${
-              selectedCategory === cat
-                ? 'bg-pink-500 text-white scale-105 shadow-md'
-                : 'bg-pink-200 text-gray-700 hover:bg-pink-300'
+            className={`${base} ${
+              selectedCategory === cat ? active : inactive
             }`}
           >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)} ({getCount(cat)})
+            {cat.charAt(0).toUpperCase() + cat.slice(1)}{" "}
+            <span className="opacity-70">({getCount(cat)})</span>
           </button>
         ))}
       </div>

@@ -2,10 +2,13 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
+import { Button } from "../components/UI/Button";
+import { Eye } from "lucide-react";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({ email: "", password: "", tenant: "lsstudio"}) 
   const [modalMessage, setModalMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -38,29 +41,43 @@ const Login = () => {
 
   return (
     <>
-    <div className="max-w-md mx-auto p-6 bg-white shadow rounded mt-36 md:mt-16">
+    <div className="max-w-md mx-auto p-6 text-textPrimary bg-bgPrimary shadow rounded mt-36 md:mt-16">
       <h2 className="text-2xl text-center font-bold mb-2">Logowanie </h2>
       <h2 className="text-xl text-center font-bold mb-2">dla zarejestrowanych użytkowników</h2>
       <form onSubmit={handleLogin} className="space-y-4">
         <input
           type="email"
           placeholder="Twoj adres e-mail, podany pod czas rejestracji..."
-          className="w-full border p-2"
+          className="w-full border p-2 "
           value={loginData.email}
           onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
           required
         />
-        <input
-          type="password"
-          placeholder="Wprowadź hasło..."
-          className="w-full border p-2"
-          value={loginData.password}
-          onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-          required
-        />
-        <button className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 w-full">
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Wprowadź hasło..."
+            className="w-full border p-2"
+            value={loginData.password}
+            onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+            required
+          />
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 transform  text-gray-500/70 -translate-y-1/2"
+            onMouseDown={() => setShowPassword(true)}
+            onMouseUp={() => setShowPassword(false)}
+            onMouseLeave={() => setShowPassword(false)}
+            onTouchStart={() => setShowPassword(true)}
+            onTouchEnd={() => setShowPassword(false)}
+          >
+            <Eye />
+          </button>
+        </div>
+       
+        <Button variant="primary" className="w-full" type="submit">
           Zaloguj się
-        </button>
+        </Button>
       </form>
     </div>
 

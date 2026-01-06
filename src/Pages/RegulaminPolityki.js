@@ -1,119 +1,178 @@
-import Breadcrumbs from '../components/Breadcrumbs'
+import Breadcrumbs from "../components/Breadcrumbs";
 
 function Regulamin() {
   return (
     <>
-    <div className='ml-1'><Breadcrumbs /></div>
-    <section className="ml-1 p-4 max-w-5xl mx-auto backdrop-blur-sm bg-pink-300/60 rounded-md">      
-      <h1 className="text-2xl text-center font-semibold mb-4">
-        REGULAMIN WITRYNY INTERNETOWEJ <strong>LS Studio</strong>.
-      </h1>
-
-      <div className="space-y-3">
-        <p>
-          <strong>§1. Informacje ogólne</strong>
-        </p>
-        <p className="ml-5"> 
-          Witryna internetowa <strong>LS STUDIO</strong> prowadzona jest przez: Larysa Shepetko.
-        </p>
-        <p className="ml-5">
-          <h1>Kontakt z administratorem:</h1>
-          <p><strong>e-mail:</strong> likashepetko@gmail.com</p>
-          <p><strong>tel.:</strong> +48 501 577 919</p>
-        </p>
-        <p>
-          <strong>§2. Zamówienia</strong>
-        </p>
-        <p className="ml-5">
-          <p>Zamówienia przez tą witrynę mogą być dokonywane <strong>tylko i wyłacznie</strong> przez osoby pełnoletnie.</p>
-          <p>Wszystkie ceny produktów są wyrażone w złotych polskich.</p>
-          <p>Zamówienia realizowane są zarówno wysyłką przez serwisy pocztowe (InPost, DPD, Poczta Polska) jak i z odbiorem osobistym w m. Mińsk Mazowiecki.</p>
-        </p>
-        <p>
-          <strong>§3. Rejestracja i konto</strong>
-        </p>
-        <p className="ml-5">
-          <p>Osoba pełnoletnia (klient) może założyć konto użytkownika, co umożliwia dostęp do historii zamówień i produktów ulubionych.</p>
-          <p>Klient ma możliwość złożenia zamówienia za pośrednictwem witryny internetowej po uprzedniej rejestracji, korzystając z formularza zamówienia.</p>
-          <p>Rejestracja wymaga podania adresu e-mail oraz hasła.</p>
-          <p>Klient zobowiązuje się do podania prawdziwych danych.</p>          
-        </p>
-        <p>
-          <strong>§4. Płatność i dostawa</strong>
-        </p>
-        <p className="ml-5">
-          <p>Na chwilę obecną witryna nie umożliwia dokonywania płatności. Zamieszczone ceny mają charakter wyłącznie informacyjny i promocyjny, jednak odpowiadają rzeczywistej wartości oferowanych produktów.</p>
-          <p>Osoba pełnoletnia (klient) odbiera zamówiony produkt osobiście lub przez serwisy pocztowe po ustaleniu szczegółów z właścicielem witryny.</p>
-        </p>
-        <p>
-          <strong>§5. Reklamacje</strong>
-        </p>
-        <p className="ml-5">
-          <p>W przypadku wad towaru klient ma prawo złożyć reklamację drogą mailową w ciągu 14 dni od daty go otzrymania.</p>
-          <p>Reklamacje rozpatrywane są w terminie 14 dni od daty zgłoszenia.</p>
-        </p>
-        <p>
-          <strong>§6. Zastrzeżenia</strong>
-        </p>
-        <p className="ml-5">
-          <p>Witryna zastrzega sobie prawo do wprowadzania zmian w regulaminie.</p>
-          <p>Korzystanie z witryny oznacza akceptację regulaminu.</p>
-        </p>
+      <div className="ml-1 mb-2">
+        <Breadcrumbs />
       </div>
 
-      <h1 className="text-2xl text-center font-semibold mb-4 mt-8">
-        POLITYKA PRYWATNOŚCI WITRYNY INTERNETOWEJ <strong>LS Studio</strong>.
-      </h1>
-      <div>
-        <p>
-          <strong>§1. Administrator danych</strong>
-        </p>
-        <p className="ml-5">
-          <p>Administratorem danych osobowych jest LS STUDIO – Larysa Shepetko, e-mail: likashepetko@gmail.com</p>
-        </p>
-        <p>
-          <strong>§2. Zakres i cel przetwarzania</strong>
-        </p>
-        <p className="ml-5">
-          <p>Dane osobowe (e-mail, imię, telefon, dane kontaktowe) przetwarzane są w celu:</p>
-          <p className="ml-5">- realizacji zamówień,</p>
-          <p className="ml-5">- kontaktu z klientem,</p> 
-          <p className="ml-5">- obsługi konta użytkownika.</p>
-          <p>Podanie danych jest dobrowolne, ale niezbędne do skorzystania z usług witryny.</p>
-          <p>Dane osobowe Użytkownika nie są przekazywane przez Administratora podmiotom trzecim.</p>
-        </p>
-        <p>
-          <strong>§3. Podstawy prawne przetwarzania</strong>
-        </p>
-        <p className="ml-5">
-          <p>Przetwarzanie odbywa się zgodnie z RODO, w oparciu o:</p>
-          <p className="ml-5">- art. 6 ust. 1 lit. b – realizacja umowy,</p>
-          <p className="ml-5">- art. 6 ust. 1 lit. f – prawnie uzasadniony interes administratora.</p>
-        </p>
-        <p>
-          <strong>§4. Prawa użytkownika</strong>
-        </p>
-        <p className="ml-5">
-          <p>Każdy użytkownik ma prawo do:</p>
-          <p className="ml-5">- dostępu do swoich danych,</p>
-          <p className="ml-5">- ich sprostowania, usunięcia lub ograniczenia przetwarzania,</p>
-          <p className="ml-5">- wniesienia sprzeciwu lub skargi do organu nadzorczego.</p>
-        </p>
-        <p>
-          <strong>§5. Okres przechowywania danych</strong>
-        </p>
-        <p className="ml-5">
-          <p>Dane przechowywane są przez okres niezbędny do realizacji celu, a także zgodnie z przepisami prawa.</p>
-        </p>
-        <p>
-          <strong>§6. Cookies</strong>
-        </p>
-        <p className="ml-5">
-          <p>Strona używa plików cookies w celach statystycznych i poprawy funkcjonalności.</p>
-        </p>
-      </div>  
-    </section>
-  </>  
+      <section
+        className="
+          mx-auto max-w-5xl
+          rounded-2xl
+          bg-surface/85
+          backdrop-blur-md
+          p-6 sm:p-8
+          shadow-[0_10px_30px_rgba(43,58,103,0.15)]
+        "
+      >
+        {/* REGULAMIN */}
+        <h1 className="mb-6 text-center text-2xl font-semibold text-lineStrong">
+          REGULAMIN WITRYNY INTERNETOWEJ{" "}
+          <span className="text-textAccent">LS Studio</span>
+        </h1>
+
+        <div className="space-y-4 text-sm leading-relaxed text-textSecondary">
+          <p className="font-semibold text-lineStrong">
+            §1. Informacje ogólne
+          </p>
+
+          <p className="pl-4">
+            Witryna internetowa <strong>LS STUDIO</strong> prowadzona jest przez:
+            Larysa Shepetko.
+          </p>
+
+          <div className="pl-4">
+            <p className="font-medium text-lineStrong">
+              Kontakt z administratorem:
+            </p>
+            <p>
+              <strong>e-mail:</strong>{" "}
+              <span className="text-textAccent">
+                likashepetko@gmail.com
+              </span>
+            </p>
+            <p>
+              <strong>tel.:</strong> +48 501 577 919
+            </p>
+          </div>
+
+          <p className="font-semibold text-lineStrong">
+            §2. Zamówienia
+          </p>
+
+          <div className="pl-4 space-y-1">
+            <p>
+              Zamówienia mogą być dokonywane{" "}
+              <strong>wyłącznie przez osoby pełnoletnie</strong>.
+            </p>
+            <p>Wszystkie ceny podane są w złotych polskich.</p>
+            <p>
+              Dostawa realizowana jest przez InPost, DPD, Pocztę Polską lub
+              odbiór osobisty w Mińsku Mazowieckim.
+            </p>
+          </div>
+
+          <p className="font-semibold text-lineStrong">
+            §3. Rejestracja i konto
+          </p>
+
+          <div className="pl-4 space-y-1">
+            <p>
+              Klient może założyć konto użytkownika w celu dostępu do historii
+              zamówień i ulubionych produktów.
+            </p>
+            <p>
+              Rejestracja wymaga podania adresu e-mail oraz hasła.
+            </p>
+            <p>Klient zobowiązuje się do podania prawdziwych danych.</p>
+          </div>
+
+          <p className="font-semibold text-lineStrong">
+            §4. Płatność i dostawa
+          </p>
+
+          <div className="pl-4 space-y-1">
+            <p>
+              Aktualnie witryna nie obsługuje płatności online.
+            </p>
+            <p>
+              Zamówienia realizowane są po indywidualnym ustaleniu szczegółów
+              z właścicielem witryny.
+            </p>
+          </div>
+
+          <p className="font-semibold text-lineStrong">
+            §5. Reklamacje
+          </p>
+
+          <div className="pl-4 space-y-1">
+            <p>
+              Reklamacje należy zgłaszać drogą mailową w ciągu 14 dni od
+              otrzymania produktu.
+            </p>
+            <p>
+              Reklamacje rozpatrywane są w terminie do 14 dni.
+            </p>
+          </div>
+
+          <p className="font-semibold text-lineStrong">
+            §6. Zastrzeżenia
+          </p>
+
+          <div className="pl-4 space-y-1">
+            <p>
+              Witryna zastrzega sobie prawo do wprowadzania zmian w regulaminie.
+            </p>
+            <p>
+              Korzystanie z witryny oznacza akceptację regulaminu.
+            </p>
+          </div>
+        </div>
+
+        {/* POLITYKA PRYWATNOŚCI */}
+        <h2 className="mt-10 mb-6 text-center text-2xl font-semibold text-lineStrong">
+          POLITYKA PRYWATNOŚCI{" "}
+          <span className="text-textAccent">LS Studio</span>
+        </h2>
+
+        <div className="space-y-4 text-sm leading-relaxed text-textSecondary">
+          <p className="font-semibold text-lineStrong">
+            §1. Administrator danych
+          </p>
+
+          <p className="pl-4">
+            Administratorem danych osobowych jest LS STUDIO – Larysa Shepetko.
+          </p>
+
+          <p className="font-semibold text-lineStrong">
+            §2. Zakres i cel przetwarzania
+          </p>
+
+          <div className="pl-4 space-y-1">
+            <p>Dane przetwarzane są w celu:</p>
+            <ul className="list-disc pl-5">
+              <li>realizacji zamówień,</li>
+              <li>kontaktu z klientem,</li>
+              <li>obsługi konta użytkownika.</li>
+            </ul>
+            <p>
+              Dane nie są przekazywane podmiotom trzecim.
+            </p>
+          </div>
+
+          <p className="font-semibold text-lineStrong">
+            §3. Prawa użytkownika
+          </p>
+
+          <ul className="pl-9 list-disc">
+            <li>dostęp do danych,</li>
+            <li>ich sprostowanie lub usunięcie,</li>
+            <li>wniesienie sprzeciwu lub skargi.</li>
+          </ul>
+
+          <p className="font-semibold text-lineStrong">
+            §4. Cookies
+          </p>
+
+          <p className="pl-4">
+            Strona wykorzystuje pliki cookies w celach statystycznych oraz
+            funkcjonalnych.
+          </p>
+        </div>
+      </section>
+    </>
   );
 }
 
