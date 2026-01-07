@@ -1,23 +1,22 @@
 import Carrousel from '../components/Carrousel';
 import NewsSection from '../components/NewsSection';
 import { useEffect, useState } from 'react';
-import { client } from '../sanityClient';
+import { getProducts } from '../api/public';
 
 export default function Home() {
+  const limit = 5;
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    client
-      .fetch(`*[_type == "product"] | order(_createdAt desc)[0...10] {
-        _id,
-        title,
-        description,
-        price,
-        available,
-        "imageUrl": image.asset->url
-      }`)
-      .then((data) => setProducts(data))
-      .catch((error) => console.error('error downloading...:', error));
+    const fetchProducts = async () => {
+      try {
+        const products = await getProducts(limit);
+        setProducts(products);
+      } catch (error) {
+        console.error('Błąd pobierania produktu:', error);
+      }
+    };
+    fetchProducts();
   }, []);
 
   return (

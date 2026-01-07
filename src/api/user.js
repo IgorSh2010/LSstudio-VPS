@@ -131,6 +131,44 @@ export const getConversations = async () => {
   return res.data;
 }
 
+/* export const getFavorites = async () => {
+  const token = localStorage.getItem("token");
+  const res = await api.get(`/users/favorites`, 
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  return res.data;
+} */
+
+export const getFavorites = async (productId = "all") => {
+  const token = localStorage.getItem("token");
+  const res = await api.get(`/products/favorites/${productId}`, 
+    {
+      headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;  
+}
+
+export const addFavorite = async (productId) => {
+  const token = localStorage.getItem("token");
+  const res = await api.post(`/products/favorites/${productId}`, 
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+  return res.data;
+}
+
+export const removeFavorite = async (productId) => {
+  const token = localStorage.getItem("token");
+  const res = await api.delete(`/products/favorites/${productId}`, 
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  return res.data;
+}
+
 export const fetchMessages = async (id) => {
   const token = localStorage.getItem("token");
   const res = await api.get(`/users/messages/${id}`, 

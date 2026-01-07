@@ -20,15 +20,13 @@ const Login = () => {
       if (res.token) {
         localStorage.setItem("token", res.token);
 
-        //window.location.href = "/admin/products";
-        
         // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
         const lastProductId = localStorage.getItem("lastViewedProductId");
         if (lastProductId) {
           navigate(`/productsMain/${lastProductId}`);
           localStorage.removeItem("lastViewedProductId"); 
         } else {
-          window.location.href = "/account"; 
+          window.location.href = "/"; 
         }
         setModalMessage("✅ Zalogowano pomyślnie!");
       } else {
@@ -85,7 +83,7 @@ const Login = () => {
       <Modal message={modalMessage} onClose={() => {
         setModalMessage(null);
         if (modalMessage == null) {
-          navigate("/account");
+          navigate("/");
         }
       }} />
     )}

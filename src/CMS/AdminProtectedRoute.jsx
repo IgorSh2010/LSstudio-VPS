@@ -1,25 +1,21 @@
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-//import { getUserRole } from "../Utils/roles";
+import { getMe } from "../api/user";
 
 const AdminProtectedRoute = ({ children }) => {
   const [authorized, setAuthorized] = useState(null);
 
   useEffect(() => {
     const verifyAdmin = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setAuthorized(false);
-        return;
-      }
-
       try {
-        const res = await fetch("/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await getMe();
 
-        setAuthorized(res.data.role === "admin");
+        if (res.status === 401) {
+          setAuthorized(false);
+          return;
+        }
+
+        setAuthorized(res.user.role === "admin");
       } catch (err) {
         console.error("❌ Auth error:", err);
         setAuthorized(false);
@@ -30,7 +26,7 @@ const AdminProtectedRoute = ({ children }) => {
   }, []);
 
   if (authorized === null) return <div>Sprawdzanie uprawnień...</div>;
-
+  console.log(authorized);
   if (!authorized) return <Navigate to="/" />;
 
   return children;

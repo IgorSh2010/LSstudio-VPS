@@ -11,13 +11,14 @@ import Regulamin from './Pages/RegulaminPolityki'
 import Favorites from './Pages/Favorites'
 import ConservationsMain from './Pages/ConservationsMain'
 import CartPage from './Pages/CartPage'
-import CookieConsent from './components/CookieConsent';
+import CookieConsent from './components/UI/CookieConsent';
 import Orders from './components/Orders';
-import AdminOrders from './components/AdminOrders'
-import AdminProtectedRoute from './components/AdminProtectedRoute'
+import AdminOrders from './CMS/AdminOrders'
+import AdminProtectedRoute from './CMS/AdminProtectedRoute'
 import ConservationsDetails from './components/ConservationsDetails'
 import ProtectedChat from './components/ProtectedChat'
 import { CartProvider } from "./context/CartContext"; 
+import AdminDashboard from './CMS/dashboard'
 
 const Layout = () => {
   
@@ -45,21 +46,21 @@ const Layout = () => {
           <Route path="/regulamin" element={<Regulamin />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/productsMain" element={<Products />} />
-          {/*
           <Route path="/productsMain/:id" element={<ProductDetails />} />
-          
-          
-          
-          
-          
           <Route path="/favorites" element={<Favorites />} />
+
+          {/* Admin routes */}
+          <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+          {/*
+          
           <Route path="/orders" element={<Orders />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/conservations" element={<ConservationsMain />} />
           <Route path="/chat/:orderId" element={<ProtectedChat><ConservationsDetails /></ProtectedChat>} />
           
           {/* Admin routes }
-          <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} /> */}
+          <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} /> 
+          */}
         </Routes>
       </main>
 

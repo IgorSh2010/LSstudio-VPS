@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
-
-const API_URL = "http://129.159.28.206:4000/api";
+import { addFavorite, removeFavorite, getFavorites } from "../api/user";
 
 const FavoriteButton = ({ productId, product, onUnliked }) => {
   const [liked, setLiked] = useState(false);
@@ -10,45 +9,29 @@ const FavoriteButton = ({ productId, product, onUnliked }) => {
   const navigate = useNavigate();
   const [modalMessage, setModalMessage] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
-  const checkFavorite = async () => {
-      if (!token) return;
+   const checkFavorite = async () => {
       try {
-        const res = await fetch(`${API_URL}/favorites/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setLiked(data.isFavorite);
+        const res = await getFavorites(productId);
+        console.log(res);
+        if (res?.includes?.(productId)) {
+          setLiked(true);
         }
       } catch (err) {
+        setLiked(false);
         console.error("Помилка перевірки улюбленого:", err);
       }
     };
     checkFavorite();
-  }, [productId, token]);
+  }, [productId]);
 
-  const handleLike = async () => {
-    if (!token) {
-      setModalMessage("Najperw musisz się zalogować!");
-      return;
-    }
-
+const handleLike = async () => {
   try {
     if (liked) {
       setConfirmDelete(true);
     } else {
-      const res = await fetch(`${API_URL}/favorites`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ productId: product.id || productId }),
-        });
+      const res = addFavorite(productId);
         if (res.ok) {
           setLiked(true);
           setAnimate(true);
@@ -58,15 +41,11 @@ const FavoriteButton = ({ productId, product, onUnliked }) => {
   } catch (err) {
     console.error("Помилка оновлення улюбленого:", err);
     setModalMessage("Błąd: " + err.message);
-  }
   };
-
+}
   const handleDeleteConfirmed = async () => {
   try {
-      const res = await fetch(`${API_URL}/favorites/${product.id || productId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await removeFavorite(productId);
       if (res.ok) {
         setLiked(false);
         setConfirmDelete(false);
@@ -103,7 +82,7 @@ const FavoriteButton = ({ productId, product, onUnliked }) => {
     {modalMessage && (
       <Modal message={modalMessage} onClose={() => {
         setModalMessage(null);        
-          navigate("/login");        
+          //navigate("/login");        
       }} />
     )}
 

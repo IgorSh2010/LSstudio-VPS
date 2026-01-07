@@ -160,7 +160,7 @@ const Header = () => {
           <div className="flex md:mb-auto space-x-4 gap-2 md:items-end md:text-right">       
             {userRole === "admin" && (
               <Button variant="secondary"
-                onClick={() => navigate("/admin/orders")}
+                onClick={() => navigate("/admin/dashboard")}
               >
                 <span>⚙ Admin Panel</span>
               </Button>

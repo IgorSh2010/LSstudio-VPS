@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowDownUp, Pencil } from "lucide-react";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const API_URL = "https://your-backend-domain.com/api";
 
