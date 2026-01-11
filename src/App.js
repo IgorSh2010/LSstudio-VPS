@@ -26,7 +26,7 @@ const Layout = () => {
   return (    
     <div className="min-h-screen flex flex-col">    
       {/* HEADER */}
-      <header> <Header /> </header>
+      <header><Header /></header>
       
       {/*NEWS SECTION*/}
       {/*<div className="bg-red-500 text-white p-4">
