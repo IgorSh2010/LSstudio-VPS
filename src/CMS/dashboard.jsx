@@ -1,12 +1,27 @@
-import { Card, CardContent } from "../components/UI/card";
+import { Card, CardContent } from "../components/ui/card";
 import { Package, ShoppingCart, Users, BarChart3 } from "lucide-react";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getStatsDashboard } from "../api/products";
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState({});
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getStatsDashboard();
+        setStats(data);
+      } catch (err) {
+        console.error("❌ Błąd pobierania statystyk:", err);
+      }
+    };
+    fetchStats();
+  }, []);
   
     
   return (
-    <div className="min-h-screen bg-gradient-to-br from-fujiBase/60 via-bgAccent to-fujiLight p-4
+    <div className="min-h-screen bg-gradient-to-br from-fujiBase/60 via-peachSoft/60 to-bgAccent p-4
                     rounded-2xl shadow-xl">
       {/* Header */}
       <div className="mb-8">
@@ -16,17 +31,19 @@ export default function AdminDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <Card className="rounded-2xl shadow-sm bg-white/80 backdrop-blur">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-peachFaint text-lineStrong">
-              <Package size={26}/>
-            </div>
-            <div>
-              <p className="text-xl text-textPrimary/80">Товари</p>
-              <p className="text-2xl font-semibold text-stone-800">128</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Link to="/admin/productsAll" className="block">
+          <Card className="rounded-2xl shadow-sm bg-white/80 backdrop-blur">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-peachFaint text-lineStrong">
+                <Package size={26}/>
+              </div>
+              <div>
+                <p className="text-xl text-textPrimary/80">Товари</p>
+                <p className="text-2xl font-semibold text-stone-800">{stats.total_products}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card className="rounded-2xl shadow-sm bg-white/80 backdrop-blur">
           <CardContent className="p-5 flex items-center gap-4">
@@ -35,7 +52,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-stone-500">Замовлення</p>
-              <p className="text-2xl font-semibold text-stone-800">32</p>
+              <p className="text-2xl font-semibold text-stone-800">{stats.total_orders}</p>
             </div>
           </CardContent>
         </Card>
@@ -47,7 +64,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-stone-500">Користувачі</p>
-              <p className="text-2xl font-semibold text-stone-800">764</p>
+              <p className="text-2xl font-semibold text-stone-800">{stats.total_users}</p>
             </div>
           </CardContent>
         </Card>
@@ -59,7 +76,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-stone-500">Оборот (міс.)</p>
-              <p className="text-2xl font-semibold text-stone-800">€12 480</p>
+              <p className="text-2xl font-semibold text-stone-800">{stats.monthly_revenue}</p>
             </div>
           </CardContent>
         </Card>

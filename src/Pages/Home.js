@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <>
-    <div className="p-2 w-full">
+    <div className="p-2 ml-8 w-full">
       <Carrousel 
         products={products}
         title="Ostatnio dodane"

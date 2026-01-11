@@ -17,7 +17,7 @@ export default function ProductsMain() {
       const fetchProducts = async () => {
         try {
           const products = await getProducts();
-          setProducts(products);
+          setProducts(products.data.items);
         } catch (error) {
           console.error("Błąd pobierania produktów:", error);
         }        
@@ -29,7 +29,7 @@ export default function ProductsMain() {
   return (
   <>
     <div className='ml-1'><Breadcrumbs /></div>    
-    <div className="ml-1 bg-white/5 backdrop-blur-md shadow-md p-2"> 
+    <div className="ml-1 bg-white/5 rounded-2xl backdrop-blur-md shadow-md p-2"> 
       {selectedCategory ? <h2 className="text-3xl px-3 font-bold text-textPrimary/80"> {selectedCategory}</h2> 
                         : <h2 className="text-3xl px-3 font-bold text-textPrimary/80"> Wszystkie wyroby </h2> }
       <div className="mb-4">
@@ -43,7 +43,11 @@ export default function ProductsMain() {
         </div>
       </div>
 
-      <Products initialProducts={filteredProducts} cartButton={true} />
+      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {filteredProducts.map((product, index) => (            
+          <Products initialProduct={product} cartButton={true} />                
+        ))}
+      </div>
     </div>
   </>
   )

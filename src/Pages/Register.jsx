@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
-import { Button } from "../components/UI/Button";
+import { Button } from "../components/ui/Button";
 import { registerUser } from "../api/auth";
 import { Eye } from "lucide-react";
 

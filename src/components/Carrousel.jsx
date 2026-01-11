@@ -5,7 +5,7 @@ import "swiper/css/pagination";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
 import FavoriteButton from "../components/FavoriteButton";
-import { Button } from "./UI/Button";
+import { Button } from "./ui/Button";
 
 const Carousel = ({ products, title = "", showButton = true }) => {
   const navigate = useNavigate();

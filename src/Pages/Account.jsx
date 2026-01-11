@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal"; 
 import { getMe, updateUser } from "../api/user";
 import { Edit, Save, X, LogOut, NotebookTabs } from 'lucide-react'; //, ClockAlert
-import { Button } from "../components/UI/Button";
+import { Button } from "../components/ui/Button";
 
 const Account = () => {
   const [user, setUser] = useState(null);

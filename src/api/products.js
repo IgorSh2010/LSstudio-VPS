@@ -45,3 +45,8 @@ export async function delProduct(productID) {
   const res = await api.delete(`/products/${productID}`);
   return res;
 }
+export async function getStatsDashboard() {
+  const { data } = await api.get(`/products/stats`);
+  return data;
+  
+}

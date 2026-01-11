@@ -27,8 +27,8 @@ export async function getCategories() {
   }  
 }
 
-export async function getProducts(limit) {  
-  const data = await api.get(`/public/getProducts?limit=${limit}`);
+export async function getProducts(category = "all", page = 1, limit = 12, tenant="lsstudio") {   
+  const data = await api.get(`/public/getProducts?limit=${limit}&page=${page}&category=${category}&tenant=${tenant}`);
   return data;
 }
 

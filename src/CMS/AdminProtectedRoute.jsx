@@ -26,7 +26,7 @@ const AdminProtectedRoute = ({ children }) => {
   }, []);
 
   if (authorized === null) return <div>Sprawdzanie uprawnień...</div>;
-  console.log(authorized);
+  
   if (!authorized) return <Navigate to="/" />;
 
   return children;

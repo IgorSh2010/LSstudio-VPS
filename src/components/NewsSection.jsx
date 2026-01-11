@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe } from "../api/user";
-import { Button } from "./UI/Button";
+import { Button } from "./ui/Button";
 
 const NewsSection = () => {
   //const { role } = useAuth();
@@ -108,9 +108,11 @@ const NewsSection = () => {
   };
 
   return (
+  <>
+    <div className="ml-8 w-full p-2">
+      <h2 className="text-3xl font-extrabold text-textPrimary">Aktualności</h2>
+    </div>
     <div className="max-w-7xl mx-auto p-6">
-      <h2 className="text-3xl font-extrabold mb-4 text-textPrimary">Aktualności</h2>
-
       {role === "admin" && (
         <div className="bg-bgSecondary p-4 rounded mb-6">
           <input
@@ -175,6 +177,7 @@ const NewsSection = () => {
         ))}
       </div>
     </div>
+  </>
   );
 };
 

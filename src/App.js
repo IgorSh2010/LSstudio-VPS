@@ -11,14 +11,15 @@ import Regulamin from './Pages/RegulaminPolityki'
 import Favorites from './Pages/Favorites'
 import ConservationsMain from './Pages/ConservationsMain'
 import CartPage from './Pages/CartPage'
-import CookieConsent from './components/UI/CookieConsent';
+import CookieConsent from './components/ui/CookieConsent';
 import Orders from './components/Orders';
-import AdminOrders from './CMS/AdminOrders'
-import AdminProtectedRoute from './CMS/AdminProtectedRoute'
+import AdminOrders from './cms/AdminOrders'
+import AdminProtectedRoute from './cms/AdminProtectedRoute'
 import ConservationsDetails from './components/ConservationsDetails'
 import ProtectedChat from './components/ProtectedChat'
 import { CartProvider } from "./context/CartContext"; 
-import AdminDashboard from './CMS/dashboard'
+import AdminDashboard from './cms/dashboard'
+import AdminProductsAll from './cms/AdminProductsAll'
 
 const Layout = () => {
   
@@ -51,6 +52,7 @@ const Layout = () => {
 
           {/* Admin routes */}
           <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+          <Route path="/admin/productsAll" element={<AdminProtectedRoute><AdminProductsAll /></AdminProtectedRoute>} />
           {/*
           
           <Route path="/orders" element={<Orders />} />

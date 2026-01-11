@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { client } from '../sanityClient'
 import FavoriteButton from "../components/FavoriteButton";
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Button } from "../components/UI/Button";
+import { Button } from "../components/ui/Button";
 import { ShoppingCart } from "lucide-react";
 
 import { Banknote, CircleCheckBig, X, BookOpenText } from 'lucide-react'; 

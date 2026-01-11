@@ -1,7 +1,7 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 //import CartPreview from "./CartPreview";
-import { Button } from "./UI/Button";
+import { Button } from "./ui/Button";
 import { getMe } from "../api/user";
 import { Speech, UserRound, Heart, LogOut, NotebookTabs, MessageCircle } from "lucide-react";
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
-import { Button } from "../components/UI/Button";
+import { Button } from "../components/ui/Button";
 import { Eye } from "lucide-react";
 
 const Login = () => {
