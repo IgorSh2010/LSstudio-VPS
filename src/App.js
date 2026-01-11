@@ -92,7 +92,7 @@ function App() {
     // <CartProvider>
       <Router>
         <Layout />
-        {/* <CookieConsent /> */}
+        <CookieConsent />
 
         {/* FOOTER (опціонально) */}
         <footer className="flex flex-col bg-fujiBase text-center text-sm text-gray-400">
