@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { logout } from '../api/auth';
 import { useEffect, useState, useRef } from "react";
 //import CartPreview from "./CartPreview";
 import { Button } from "./ui/Button";
@@ -73,9 +74,11 @@ const Header = () => {
 
   // 🚪 Вихід із системи
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    /* localStorage.removeItem("token");
     setUser(null);
-    navigate("/");
+    setUserRole(null);
+    navigate("/"); */
+    logout();
   };
 
   useEffect(() => {

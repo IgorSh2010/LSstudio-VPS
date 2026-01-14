@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import FavoriteButton from "../components/FavoriteButton";
+import FavoriteButton from "./ui/FavoriteButton";
 import { Banknote, CircleCheckBig, X, ShoppingCart, ChevronLeft, ChevronRight} from "lucide-react";
 import { Button } from "./ui/Button";
 import { getPreviewImg } from "../lib/utils";
@@ -13,11 +13,6 @@ const Products = ({ initialProduct = null, cartButton, title }) => {
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
-  
-  /*useEffect(() => {  
-    console.log("initialProducts.images - ", initialProducts.images);  
-    if (initialProducts) return;
-  }); */
 
   const handleDragEnd = (event, info) => {
     const swipeThreshold = 50;

@@ -39,7 +39,12 @@ export async function updateProduct(changedFields, id) {
 export async function getProducts() {
   const { data } = await api.get(`/products/get`);
   return data;
-}  
+} 
+
+export async function getProductByID(productID) {
+  const { data } = await api.get(`/products/get/${productID}`);
+  return data;
+}
 
 export async function delProduct(productID) {
   const res = await api.delete(`/products/${productID}`);

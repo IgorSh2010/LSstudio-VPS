@@ -35,7 +35,7 @@ export async function logout() {
   } catch (err) {
     console.error("Logout error:", err);
   } finally {
-    localStorage.clear();
+    localStorage.removeItem("token");
     window.location.href = "/";
   }
 }

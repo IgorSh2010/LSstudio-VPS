@@ -45,7 +45,7 @@ export default function ProductsMain() {
 
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredProducts.map((product, index) => (            
-          <Products initialProduct={product} cartButton={true} />                
+          <Products initialProduct={product} cartButton={true} key={product.id}/>                
         ))}
       </div>
     </div>

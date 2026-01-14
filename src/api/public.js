@@ -32,7 +32,7 @@ export async function getProducts(category = "all", page = 1, limit = 12, tenant
   return data;
 }
 
-export async function getProductByID(productID) {
-  const { data } = await api.get(`/public/getProducts/${productID}`);
+export async function getProductByID(productID, tenant="lsstudio") {
+  const { data } = await api.get(`/public/getProducts/${productID}?tenant=${tenant}`);
   return data;
 }

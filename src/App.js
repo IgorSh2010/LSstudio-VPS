@@ -20,6 +20,7 @@ import ProtectedChat from './components/ProtectedChat'
 import { CartProvider } from "./context/CartContext"; 
 import AdminDashboard from './cms/dashboard'
 import AdminProductsAll from './cms/AdminProductsAll'
+import AdminProductDetails from './cms/AdminProductDetails'
 
 const Layout = () => {
   
@@ -53,6 +54,7 @@ const Layout = () => {
           {/* Admin routes */}
           <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
           <Route path="/admin/productsAll" element={<AdminProtectedRoute><AdminProductsAll /></AdminProtectedRoute>} />
+          <Route path="/admin/products/:id" element={<AdminProtectedRoute><AdminProductDetails /></AdminProtectedRoute>} />
           {/*
           
           <Route path="/orders" element={<Orders />} />

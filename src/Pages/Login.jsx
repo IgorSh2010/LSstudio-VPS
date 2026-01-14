@@ -16,19 +16,20 @@ const Login = () => {
 
     try {
       const res = await loginUser(loginData);
-
       if (res.token) {
-        localStorage.setItem("token", res.token);
-
-        // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
+          setModalMessage("✅ Login successful!");
+          window.location.href = "/";
+          navigate("/account");        
+        
+        /* // 🔹 Переходимо далі (наприклад, на акаунт або останній переглянутий продукт)
         const lastProductId = localStorage.getItem("lastViewedProductId");
         if (lastProductId) {
           navigate(`/productsMain/${lastProductId}`);
           localStorage.removeItem("lastViewedProductId"); 
         } else {
-          window.location.href = "/"; 
-        }
-        setModalMessage("✅ Zalogowano pomyślnie!");
+           
+        } */
+        
       } else {
         setModalMessage("❌ Błąd logowania. Sprawdź swoje dane.");
       }      
@@ -82,9 +83,9 @@ const Login = () => {
     {modalMessage && (
       <Modal message={modalMessage} onClose={() => {
         setModalMessage(null);
-        if (modalMessage == null) {
+        /* if (modalMessage == null) {
           navigate("/");
-        }
+        } */
       }} />
     )}
   </>

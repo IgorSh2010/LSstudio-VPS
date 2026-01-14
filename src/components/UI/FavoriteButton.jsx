@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Modal from "../components/Modal";
-import { addFavorite, removeFavorite, getFavorites } from "../api/user";
+import Modal from "../Modal";
+import { addFavorite, removeFavorite, getFavorites } from "../../api/user";
 
 const FavoriteButton = ({ productId, product, onUnliked }) => {
   const [liked, setLiked] = useState(false);
@@ -13,6 +13,11 @@ const FavoriteButton = ({ productId, product, onUnliked }) => {
   useEffect(() => {
    const checkFavorite = async () => {
       try {
+        if (localStorage.getItem("token") === null) {
+          setLiked(false);
+          return;
+        }
+
         const res = await getFavorites(productId);
         console.log(res);
         if (res?.includes?.(productId)) {
